@@ -48,4 +48,4 @@ Popis funkcionality aplikace jsme se rozhodli rozdělit podle různých skupin u
     * Přidávat uživatele (CRUD)
     * Rozdělovat role (CRUD)
     * Spouštět CRON úlohy
-    * + operace všech ostatních rolí
+    * \+ operace všech ostatních rolí
