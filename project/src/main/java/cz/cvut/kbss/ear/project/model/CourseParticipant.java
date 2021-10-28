@@ -18,4 +18,11 @@ public abstract class CourseParticipant extends AbstractEntity {
     public void setUser(User user) {
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "CourseParticipant{" +
+                "user=" + user +
+                '}';
+    }
 }

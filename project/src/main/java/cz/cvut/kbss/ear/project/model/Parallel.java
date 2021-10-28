@@ -120,4 +120,20 @@ public class Parallel extends AbstractEntity{
     public void setClassroom(Classroom classroom) {
         this.classroom = classroom;
     }
+
+    @Override
+    public String toString() {
+        return "Parallel{" +
+                "name='" + name + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", note='" + note + '\'' +
+                ", capacity=" + capacity +
+                ", parallelType=" + parallelType +
+                ", courseInSemester=" + courseInSemester +
+                ", courseStudents=" + courseStudents +
+                ", courseTeachers=" + courseTeachers +
+                ", classroom=" + classroom +
+                '}';
+    }
 }

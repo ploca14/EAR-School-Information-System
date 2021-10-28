@@ -19,4 +19,11 @@ public class CourseTeacher extends CourseParticipant{
     public void setTeachedParallels(List<Parallel> teachedParallels) {
         this.teachedParallels = teachedParallels;
     }
+
+    @Override
+    public String toString() {
+        return "CourseTeacher{" +
+                "teachedParallels=" + teachedParallels +
+                '}';
+    }
 }
