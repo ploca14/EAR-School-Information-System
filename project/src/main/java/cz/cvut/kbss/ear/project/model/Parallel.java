@@ -29,7 +29,7 @@ public class Parallel extends AbstractEntity{
 
     @ManyToOne
     @JoinColumn(name = "course_in_semester_id")
-    private CourseInSemester courseInSemester;
+    private CourseInSemester course;
 
     @ManyToMany(mappedBy = "enroledParallels")
     private List<CourseStudent> courseStudents;
