@@ -31,10 +31,10 @@ public class Parallel extends AbstractEntity{
     @JoinColumn(name = "course_in_semester_id")
     private CourseInSemester course;
 
-    @ManyToMany(mappedBy = "enroledParallels")
+    @ManyToMany(mappedBy = "parallels")
     private List<CourseStudent> courseStudents;
 
-    @ManyToMany(mappedBy = "teachedParallels")
+    @ManyToMany(mappedBy = "parallels")
     private List<CourseTeacher> courseTeachers;
 
     @ManyToOne
@@ -90,11 +90,11 @@ public class Parallel extends AbstractEntity{
     }
 
     public CourseInSemester getCourseInSemester() {
-        return courseInSemester;
+        return course;
     }
 
     public void setCourseInSemester(CourseInSemester courseInSemester) {
-        this.courseInSemester = courseInSemester;
+        this.course = courseInSemester;
     }
 
     public List<CourseStudent> getCourseStudents() {
@@ -130,7 +130,7 @@ public class Parallel extends AbstractEntity{
                 ", note='" + note + '\'' +
                 ", capacity=" + capacity +
                 ", parallelType=" + parallelType +
-                ", courseInSemester=" + courseInSemester +
+                ", courseInSemester=" + course +
                 ", courseStudents=" + courseStudents +
                 ", courseTeachers=" + courseTeachers +
                 ", classroom=" + classroom +
