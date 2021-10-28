@@ -1,29 +1,19 @@
 package cz.cvut.kbss.ear.project.model;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import java.util.List;
+import javax.persistence.ManyToOne;
 
 @Entity
-@DiscriminatorValue("TEACHER")
-public class CourseTeacher extends CourseParticipant{
+public class CourseTeacher extends AbstractEntity {
 
-    @ManyToMany
-    private List<Parallel> teachedParallels;
+  @ManyToOne(optional = false)
+  private CourseInSemester course;
 
-    public List<Parallel> getTeachedParallels() {
-        return teachedParallels;
-    }
+  public CourseInSemester getCourse() {
+    return course;
+  }
 
-    public void setTeachedParallels(List<Parallel> teachedParallels) {
-        this.teachedParallels = teachedParallels;
-    }
-
-    @Override
-    public String toString() {
-        return "CourseTeacher{" +
-                "teachedParallels=" + teachedParallels +
-                '}';
-    }
+  public void setCourse(CourseInSemester course) {
+    this.course = course;
+  }
 }
