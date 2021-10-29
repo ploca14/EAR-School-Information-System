@@ -5,6 +5,7 @@ import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CourseService {
@@ -15,6 +16,7 @@ public class CourseService {
         this.courseDao = courseDao;
     }
 
+    @Transactional
     public void createNewCourse(String name, Integer credits, String code, CourseCompletionType completionType){
         if (courseDao.findByCode(code) != null){
             throw new CourseException("Course with this code already exists");
