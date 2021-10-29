@@ -24,10 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class SemesterServiceTest {
 
-
-    @PersistenceContext
-    private EntityManager em;
-
     @Autowired
     private SemesterService semesterService;
 

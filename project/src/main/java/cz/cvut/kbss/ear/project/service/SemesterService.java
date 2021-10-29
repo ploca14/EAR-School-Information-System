@@ -8,7 +8,6 @@ import cz.cvut.kbss.ear.project.model.enums.SemesterType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,7 +20,7 @@ public class SemesterService {
     }
 
     @Transactional
-    public void addNewSemester(String code, String year, SemesterType semesterType){
+    public Semester addNewSemester(String code, String year, SemesterType semesterType){
         if (!isCodeUnique(code)){
             throw new SemesterException("Semester with this code already exists");
         }
@@ -35,8 +34,9 @@ public class SemesterService {
         semester.setState(SemesterState.PREPARATION);
         semester.setYear(year);
         semester.setType(semesterType);
-
         semesterDao.persist(semester);
+
+        return semester;
     }
 
     @Transactional

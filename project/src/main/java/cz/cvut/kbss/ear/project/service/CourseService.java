@@ -17,7 +17,7 @@ public class CourseService {
     }
 
     @Transactional
-    public void createNewCourse(String name, Integer credits, String code, CourseCompletionType completionType){
+    public Course createNewCourse(String name, Integer credits, String code, CourseCompletionType completionType){
         if (courseDao.findByCode(code) != null){
             throw new CourseException("Course with this code already exists");
         }
@@ -27,8 +27,9 @@ public class CourseService {
         course.setCredits(credits);
         course.setCode(code);
         course.setCompletionType(completionType);
-
         courseDao.persist(course);
+
+        return course;
     }
 
     public void setRecommendedSemester(Course course, Integer semester){
