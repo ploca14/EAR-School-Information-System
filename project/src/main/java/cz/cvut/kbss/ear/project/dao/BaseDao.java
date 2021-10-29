@@ -1,12 +1,18 @@
 package cz.cvut.kbss.ear.project.dao;
 
 import cz.cvut.kbss.ear.project.exception.PersistenceException;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+// TODO otazka do dalsiho cvika. je potreba psat furt jak dement findByAttribute namedQueries, anebo se to da nejak
+// TODO rozumne udelat obecne?
 public abstract class BaseDao<T> implements GenericDao<T> {
 
     @PersistenceContext
