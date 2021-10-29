@@ -41,8 +41,17 @@ public class SemesterService {
 
     @Transactional
     public void makeSemesterCurrent(Semester newSemester){
+        if (newSemester.getState() == SemesterState.CURRENT){
+            throw new SemesterException("Semester: " + newSemester.getCode() + " is already CURRENT.");
+        }
+
+        if (newSemester.getState() == SemesterState.ARCHIVED){
+            throw new SemesterException("Semester: " + newSemester.getCode() + " is ARCHIVED." +
+                    " Cannot make ARCHIVED semester CURRENT");
+        }
+
         List<Semester> semesters = semesterDao.findByState(SemesterState.CURRENT);
-        if (semesters != null){
+        if (semesters != null && semesters.size() != 0){
             Semester currentSemester = semesters.get(0);
             currentSemester.setState(SemesterState.ARCHIVED);
             semesterDao.update(currentSemester);

@@ -1,10 +1,6 @@
 package cz.cvut.kbss.ear.project.dao;
 
 import cz.cvut.kbss.ear.project.exception.PersistenceException;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
