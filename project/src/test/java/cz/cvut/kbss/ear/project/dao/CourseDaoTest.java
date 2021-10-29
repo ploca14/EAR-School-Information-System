@@ -1,7 +1,11 @@
-package cz.cvut.kbss.ear.project;
+package cz.cvut.kbss.ear.project.dao;
 
+import cz.cvut.kbss.ear.project.Application;
 import cz.cvut.kbss.ear.project.dao.ClassroomDao;
 import cz.cvut.kbss.ear.project.model.Classroom;
+import cz.cvut.kbss.ear.project.model.Course;
+import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
+import cz.cvut.kbss.ear.project.service.CourseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,24 +17,24 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class)
-public class BaseDaoTest {
+public class CourseDaoTest {
 
     @Autowired
     private TestEntityManager em;
 
     @Autowired
-    private ClassroomDao classroomDao;
+    private CourseDao courseDao;
+
+    @Autowired
+    private CourseService courseService;
 
     @Test
-    public void persist_persistOneEntity_entityPersisted() {
-        Classroom classroom = new Classroom();
-        classroom.setName("Test classroom");
-        classroomDao.persist(classroom);
+    public void findByCode_courseExists_returnsCourseWithMatchingCode() {
+        courseService.createNewCourse("Kurz", 5, "B36EAR", CourseCompletionType.KZ);
 
-        final Classroom result = em.find(Classroom.class, classroom.getId());
+        final Course result = courseDao.findByCode("B36EAR");
 
         assertNotNull(result);
-        assertEquals(classroom.getId(), result.getId());
-        assertEquals(classroom.getName(), result.getName());
+        assertEquals("B36EAR", result.getCode());
     }
 }
