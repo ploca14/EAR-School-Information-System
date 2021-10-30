@@ -3,14 +3,19 @@ package cz.cvut.kbss.ear.project.model;
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+
+import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Semester.findByState", query = "SELECT s FROM Semester s WHERE s.state = :semesterState"),
+        @NamedQuery(name = "Semester.findByCode", query = "SELECT s FROM Semester s WHERE s.code = :code"),
+        @NamedQuery(name = "Semester.findByYear", query = "SELECT s FROM Semester s WHERE s.year = :year")
+})
 public class Semester extends AbstractEntity {
 
   @NotNull
+  @Column(unique = true)
   private String code;
 
   @Enumerated(EnumType.STRING)

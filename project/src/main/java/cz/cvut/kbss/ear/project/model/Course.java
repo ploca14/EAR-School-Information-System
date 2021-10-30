@@ -2,11 +2,13 @@ package cz.cvut.kbss.ear.project.model;
 
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+
+import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Course.findByCode", query = "SELECT c FROM Course c WHERE c.code = :code")
+})
 public class Course extends AbstractEntity {
 
   @NotNull
@@ -18,6 +20,7 @@ public class Course extends AbstractEntity {
   private String description;
 
   @NotNull
+  @Column(unique = true)
   private String code;
 
   private Integer recommendedSemester;

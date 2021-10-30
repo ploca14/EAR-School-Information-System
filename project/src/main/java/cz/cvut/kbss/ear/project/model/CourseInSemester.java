@@ -2,11 +2,15 @@ package cz.cvut.kbss.ear.project.model;
 
 import com.sun.istack.NotNull;
 import java.util.Collection;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = "CourseInSemester.findCourseInSemester",
+                query = "SELECT c FROM CourseInSemester c WHERE c.semester = :semester AND c.course = :course"
+        )
+})
 public class CourseInSemester extends AbstractEntity {
 
   @ManyToOne(optional = false)
