@@ -2,17 +2,23 @@ package cz.cvut.kbss.ear.project.model;
 
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.Role;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "SYSTEM_USER")
+@NamedQueries({
+    @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username")
+})
 public class User extends AbstractEntity {
 
     @NotNull
+    @Column(unique = true)
     private String username;
 
     @NotNull
@@ -30,6 +36,7 @@ public class User extends AbstractEntity {
     private String mailingAddress;
 
     @NotNull
+    @Column(unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -102,14 +109,14 @@ public class User extends AbstractEntity {
     @Override
     public String toString() {
         return "User{" +
-                "username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
-                ", permanentResidence='" + permanentResidence + '\'' +
-                ", mailingAddress='" + mailingAddress + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                '}';
+            "username='" + username + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", password='" + password + '\'' +
+            ", permanentResidence='" + permanentResidence + '\'' +
+            ", mailingAddress='" + mailingAddress + '\'' +
+            ", email='" + email + '\'' +
+            ", role=" + role +
+            '}';
     }
 }

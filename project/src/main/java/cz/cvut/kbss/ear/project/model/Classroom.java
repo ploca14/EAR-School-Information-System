@@ -3,7 +3,7 @@ package cz.cvut.kbss.ear.project.model;
 import javax.persistence.Entity;
 
 @Entity
-public class Classroom extends AbstractEntity{
+public class Classroom extends AbstractEntity {
 
     private String name;
 

@@ -1,10 +1,11 @@
 package cz.cvut.kbss.ear.project.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import cz.cvut.kbss.ear.project.dao.SemesterDao;
-import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.model.Semester;
-import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -31,7 +26,7 @@ public class SemesterServiceTest {
     private SemesterDao semesterDao;
 
     @Test
-    public void makeSemesterCurrent_currentSemesterExists_oldSemesterArchivedNewSemesterCurrent(){
+    public void makeSemesterCurrent_currentSemesterExists_oldSemesterArchivedNewSemesterCurrent() {
         addTwoSemesters();
         Semester semester1 = semesterDao.findByCode("B211");
         Semester semester2 = semesterDao.findByCode("B212");
@@ -46,7 +41,7 @@ public class SemesterServiceTest {
     }
 
     @Test
-    public void makeSemesterCurrent_makeArchivedSemesterCurrent_exceptionThrown(){
+    public void makeSemesterCurrent_makeArchivedSemesterCurrent_exceptionThrown() {
         addTwoSemesters();
         Semester semester1 = semesterDao.findByCode("B211");
         Semester semester2 = semesterDao.findByCode("B212");
@@ -58,7 +53,7 @@ public class SemesterServiceTest {
     }
 
     @Test
-    public void makeSemesterCurrent_makeCurrentSemesterCurrent_exceptionThrown(){
+    public void makeSemesterCurrent_makeCurrentSemesterCurrent_exceptionThrown() {
         addTwoSemesters();
         Semester semester1 = semesterDao.findByCode("B211");
 
@@ -68,19 +63,21 @@ public class SemesterServiceTest {
     }
 
     @Test
-    public void addSemester_addDuplicateCodes_exceptionThrown(){
+    public void addSemester_addDuplicateCodes_exceptionThrown() {
         semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
 
-        assertThrows(SemesterException.class, () -> semesterService.addNewSemester("B211", "2021", SemesterType.SUMMER));
+        assertThrows(SemesterException.class,
+            () -> semesterService.addNewSemester("B211", "2021", SemesterType.SUMMER));
     }
 
     @Test
-    public void addSemester_addDuplicateSemesterTypesInOneYear_exceptionThrown(){
+    public void addSemester_addDuplicateSemesterTypesInOneYear_exceptionThrown() {
         semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        assertThrows(SemesterException.class, () -> semesterService.addNewSemester("B212", "2021", SemesterType.WINTER));
+        assertThrows(SemesterException.class,
+            () -> semesterService.addNewSemester("B212", "2021", SemesterType.WINTER));
     }
 
-    private void addTwoSemesters(){
+    private void addTwoSemesters() {
         semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         semesterService.addNewSemester("B212", "2021", SemesterType.SUMMER);
     }

@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import cz.cvut.kbss.ear.project.Application;
-import cz.cvut.kbss.ear.project.model.Classroom;
+import cz.cvut.kbss.ear.project.enviroment.Generator;
+import cz.cvut.kbss.ear.project.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,24 +14,22 @@ import org.springframework.context.annotation.ComponentScan;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class)
-public class BaseDaoTest {
+public class UserDaoTest {
 
     @Autowired
     private TestEntityManager em;
 
     @Autowired
-    private ClassroomDao classroomDao;
+    private UserDao dao;
 
     @Test
-    public void persist_persistOneEntity_entityPersisted() {
-        Classroom classroom = new Classroom();
-        classroom.setName("Test classroom");
-        classroomDao.persist(classroom);
+    public void findByUsername_userExists_returnsUserWithUsername() {
+        final User user = Generator.generateUser();
+        em.persist(user);
 
-        final Classroom result = em.find(Classroom.class, classroom.getId());
+        final User result = dao.findByUsername(user.getUsername());
 
         assertNotNull(result);
-        assertEquals(classroom.getId(), result.getId());
-        assertEquals(classroom.getName(), result.getName());
+        assertEquals(user.getUsername(), result.getUsername());
     }
 }

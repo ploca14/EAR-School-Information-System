@@ -2,22 +2,31 @@ package cz.cvut.kbss.ear.project.model;
 
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.ParallelType;
-
-import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.List;
+import java.sql.Time;
+import java.time.DayOfWeek;
+import java.util.Collection;
+import java.util.HashSet;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 @Entity
-public class Parallel extends AbstractEntity{
+public class Parallel extends AbstractEntity {
 
     @NotNull
     private String name;
 
     @NotNull
-    private Timestamp startTime;
+    private Time startTime;
 
     @NotNull
-    private Timestamp endTime;
+    private Time endTime;
+
+    @NotNull
+    private DayOfWeek dayOfWeek;
 
     private String note;
 
@@ -32,10 +41,10 @@ public class Parallel extends AbstractEntity{
     private CourseInSemester course;
 
     @ManyToMany(mappedBy = "parallels")
-    private List<CourseStudent> courseStudents;
+    private Collection<CourseStudent> courseStudents = new HashSet<>();
 
     @ManyToMany(mappedBy = "parallels")
-    private List<CourseTeacher> courseTeachers;
+    private Collection<CourseTeacher> courseTeachers = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "classroom_id")
@@ -49,19 +58,19 @@ public class Parallel extends AbstractEntity{
         this.name = name;
     }
 
-    public Timestamp getStartTime() {
+    public Time getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Time startTime) {
         this.startTime = startTime;
     }
 
-    public Timestamp getEndTime() {
+    public Time getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Time endTime) {
         this.endTime = endTime;
     }
 
@@ -97,19 +106,19 @@ public class Parallel extends AbstractEntity{
         this.course = courseInSemester;
     }
 
-    public List<CourseStudent> getCourseStudents() {
+    public Collection<CourseStudent> getCourseStudents() {
         return courseStudents;
     }
 
-    public void setCourseStudents(List<CourseStudent> courseStudents) {
+    public void setCourseStudents(Collection<CourseStudent> courseStudents) {
         this.courseStudents = courseStudents;
     }
 
-    public List<CourseTeacher> getCourseTeachers() {
+    public Collection<CourseTeacher> getCourseTeachers() {
         return courseTeachers;
     }
 
-    public void setCourseTeachers(List<CourseTeacher> courseTeachers) {
+    public void setCourseTeachers(Collection<CourseTeacher> courseTeachers) {
         this.courseTeachers = courseTeachers;
     }
 
@@ -121,19 +130,47 @@ public class Parallel extends AbstractEntity{
         this.classroom = classroom;
     }
 
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
     @Override
     public String toString() {
         return "Parallel{" +
-                "name='" + name + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", note='" + note + '\'' +
-                ", capacity=" + capacity +
-                ", parallelType=" + parallelType +
-                ", courseInSemester=" + course +
-                ", courseStudents=" + courseStudents +
-                ", courseTeachers=" + courseTeachers +
-                ", classroom=" + classroom +
-                '}';
+            "name='" + name + '\'' +
+            ", startTime=" + startTime +
+            ", endTime=" + endTime +
+            ", note='" + note + '\'' +
+            ", capacity=" + capacity +
+            ", parallelType=" + parallelType +
+            ", courseInSemester=" + course +
+            ", courseStudents=" + courseStudents +
+            ", courseTeachers=" + courseTeachers +
+            ", classroom=" + classroom +
+            '}';
+    }
+
+    public void enrollParticipant(CourseStudent student) {
+        courseStudents.add(student);
+        student.getParallels().add(this);
+    }
+
+    public void enrollParticipant(CourseTeacher teacher) {
+        courseTeachers.add(teacher);
+        teacher.getParallels().add(this);
+    }
+
+    public void unenrollParticipant(CourseStudent student) {
+        courseStudents.remove(student);
+        student.getParallels().remove(this);
+    }
+
+    public void unenrollParticipant(CourseTeacher teacher) {
+        courseTeachers.remove(teacher);
+        teacher.getParallels().remove(this);
     }
 }

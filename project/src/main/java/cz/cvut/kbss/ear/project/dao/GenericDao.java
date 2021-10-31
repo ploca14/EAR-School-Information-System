@@ -55,7 +55,8 @@ public interface GenericDao<T> {
     void remove(T entity);
 
     /**
-     * Checks whether an entity with the specified id exists (and has the type managed by this DAO).
+     * Checks whether an entity with the specified id exists (and has the type managed by this
+     * DAO).
      *
      * @param id Entity identifier
      * @return {@literal true} if entity exists, {@literal false} otherwise

@@ -1,9 +1,9 @@
 package cz.cvut.kbss.ear.project.model;
 
+import java.io.Serializable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import java.io.Serializable;
 
 @MappedSuperclass
 public class AbstractEntity implements Serializable {
