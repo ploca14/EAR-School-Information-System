@@ -6,16 +6,33 @@ import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SemesterService {
 
-    private final SemesterDao semesterDao;
+    private final SemesterDao dao;
 
     public SemesterService(SemesterDao semesterDao) {
-        this.semesterDao = semesterDao;
+        this.dao = semesterDao;
+    }
+
+    @Transactional
+    public List<Semester> findAll() {
+        return dao.findAll();
+    }
+
+    @Transactional
+    public Semester find(Integer id) {
+        return dao.find(id);
+    }
+
+    @Transactional
+    public void persist(Semester semester) {
+        Objects.requireNonNull(semester);
+        dao.persist(semester);
     }
 
     @Transactional
@@ -35,7 +52,7 @@ public class SemesterService {
         semester.setState(SemesterState.PREPARATION);
         semester.setYear(year);
         semester.setType(semesterType);
-        semesterDao.persist(semester);
+        dao.persist(semester);
 
         return semester;
     }
@@ -52,23 +69,23 @@ public class SemesterService {
                 " Cannot make ARCHIVED semester CURRENT");
         }
 
-        List<Semester> semesters = semesterDao.findByState(SemesterState.CURRENT);
+        List<Semester> semesters = dao.findByState(SemesterState.CURRENT);
         if (semesters != null && semesters.size() != 0) {
             Semester currentSemester = semesters.get(0);
             currentSemester.setState(SemesterState.ARCHIVED);
-            semesterDao.update(currentSemester);
+            dao.update(currentSemester);
         }
 
         newSemester.setState(SemesterState.CURRENT);
-        semesterDao.update(newSemester);
+        dao.update(newSemester);
     }
 
     private boolean isCodeUnique(String code) {
-        return semesterDao.findByCode(code) == null;
+        return dao.findByCode(code) == null;
     }
 
     private boolean existsSemesterWithSameType(SemesterType semesterType, String year) {
-        for (Semester semester : semesterDao.findByYear(year)) {
+        for (Semester semester : dao.findByYear(year)) {
             if (semester.getType() == semesterType) {
                 return true;
             }
