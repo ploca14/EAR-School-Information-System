@@ -1,11 +1,11 @@
 package cz.cvut.kbss.ear.project.dao;
 
 import cz.cvut.kbss.ear.project.exception.PersistenceException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 // TODO otazka do dalsiho cvika. je potreba psat furt jak dement findByAttribute namedQueries, anebo se to da nejak
 // TODO rozumne udelat obecne?
@@ -29,7 +29,8 @@ public abstract class BaseDao<T> implements GenericDao<T> {
     @Override
     public List<T> findAll() {
         try {
-            return em.createQuery("SELECT e FROM " + type.getSimpleName() + " e", type).getResultList();
+            return em.createQuery("SELECT e FROM " + type.getSimpleName() + " e", type)
+                .getResultList();
         } catch (RuntimeException e) {
             throw new PersistenceException(e);
         }

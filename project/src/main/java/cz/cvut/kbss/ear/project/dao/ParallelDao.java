@@ -4,7 +4,8 @@ import cz.cvut.kbss.ear.project.model.Parallel;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ParallelDao extends BaseDao<Parallel>{
+public class ParallelDao extends BaseDao<Parallel> {
+
     public ParallelDao() {
         super(Parallel.class);
     }

@@ -1,24 +1,23 @@
 package cz.cvut.kbss.ear.project.model;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import java.util.List;
 
 @Entity
 public class CourseTeacher extends CourseParticipant {
 
-  @ManyToOne(optional = false)
-  private CourseInSemester course;
+    @Override
+    public void enrollInParallel(Parallel parallel) {
+        parallel.enrollParticipant(this);
+    }
 
-  @ManyToMany
-  private List<Parallel> parallels;
+    @Override
+    public void unenrollFromParallel(Parallel parallel) {
+        parallel.unenrollParticipant(this);
+    }
 
-  public CourseInSemester getCourse() {
-    return course;
-  }
-
-  public void setCourse(CourseInSemester course) {
-    this.course = course;
-  }
+    @Override
+    public void unenrollFromCourse() {
+        getCourse().getTeachers().remove(this);
+        setCourse(null);
+    }
 }

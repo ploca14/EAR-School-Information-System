@@ -5,10 +5,9 @@ import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class SemesterService {
@@ -20,13 +19,15 @@ public class SemesterService {
     }
 
     @Transactional
-    public Semester addNewSemester(String code, String year, SemesterType semesterType){
-        if (!isCodeUnique(code)){
+    public Semester addNewSemester(String code, String year, SemesterType semesterType) {
+        if (!isCodeUnique(code)) {
             throw new SemesterException("Semester with this code already exists");
         }
 
-        if (existsSemesterWithSameType(semesterType, year)){
-            throw new SemesterException("Semester with type: " + semesterType.toString() + "already exists in year: " + year);
+        if (existsSemesterWithSameType(semesterType, year)) {
+            throw new SemesterException(
+                "Semester with type: " + semesterType.toString() + "already exists in year: "
+                    + year);
         }
 
         Semester semester = new Semester();
@@ -40,18 +41,19 @@ public class SemesterService {
     }
 
     @Transactional
-    public void makeSemesterCurrent(Semester newSemester){
-        if (newSemester.getState() == SemesterState.CURRENT){
-            throw new SemesterException("Semester: " + newSemester.getCode() + " is already CURRENT.");
+    public void makeSemesterCurrent(Semester newSemester) {
+        if (newSemester.getState() == SemesterState.CURRENT) {
+            throw new SemesterException(
+                "Semester: " + newSemester.getCode() + " is already CURRENT.");
         }
 
-        if (newSemester.getState() == SemesterState.ARCHIVED){
+        if (newSemester.getState() == SemesterState.ARCHIVED) {
             throw new SemesterException("Semester: " + newSemester.getCode() + " is ARCHIVED." +
-                    " Cannot make ARCHIVED semester CURRENT");
+                " Cannot make ARCHIVED semester CURRENT");
         }
 
         List<Semester> semesters = semesterDao.findByState(SemesterState.CURRENT);
-        if (semesters != null && semesters.size() != 0){
+        if (semesters != null && semesters.size() != 0) {
             Semester currentSemester = semesters.get(0);
             currentSemester.setState(SemesterState.ARCHIVED);
             semesterDao.update(currentSemester);
@@ -61,13 +63,15 @@ public class SemesterService {
         semesterDao.update(newSemester);
     }
 
-    private boolean isCodeUnique(String code){
+    private boolean isCodeUnique(String code) {
         return semesterDao.findByCode(code) == null;
     }
 
-    private boolean existsSemesterWithSameType(SemesterType semesterType, String year){
-        for (Semester semester : semesterDao.findByYear(year)){
-            if (semester.getType() == semesterType) return true;
+    private boolean existsSemesterWithSameType(SemesterType semesterType, String year) {
+        for (Semester semester : semesterDao.findByYear(year)) {
+            if (semester.getType() == semesterType) {
+                return true;
+            }
         }
 
         return false;

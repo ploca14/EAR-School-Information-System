@@ -1,8 +1,9 @@
 package cz.cvut.kbss.ear.project.dao;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import cz.cvut.kbss.ear.project.Application;
-import cz.cvut.kbss.ear.project.dao.ClassroomDao;
-import cz.cvut.kbss.ear.project.model.Classroom;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import cz.cvut.kbss.ear.project.service.CourseService;
@@ -11,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class)
