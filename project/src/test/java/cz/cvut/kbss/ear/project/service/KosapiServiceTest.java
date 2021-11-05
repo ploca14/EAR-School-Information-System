@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -25,6 +26,20 @@ public class KosapiServiceTest {
         Course course = kosapiService.getCourse(code);
 
         Assertions.assertNotNull(course);
+    }
+
+    @Test
+    public void getCourse_tryToGetNotExistingCourse_httpClientExceptionThrown(){
+        String code = "wieGehtsMann?";
+        Assertions.assertThrows(HttpClientErrorException.class,
+                () -> kosapiService.getCourse(code));
+    }
+
+    @Test
+    public void getCoursesInSemester_notExistingSemester_httpClientExceptionThrown(){
+        String semester_code = "yoyoyoMann";
+        Assertions.assertThrows(HttpClientErrorException.class,
+                () -> kosapiService.getCoursesInSemester(semester_code));
     }
 
     @Test

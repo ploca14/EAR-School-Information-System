@@ -62,9 +62,6 @@ public class KosapiService {
         try {
             Entry<KosCourse> atomEntry = xmlMapper.readValue(response, new TypeReference<Entry<KosCourse>>() {});
             KosCourse kosCourse = atomEntry.getContent();
-            if (kosCourse == null){
-                throw new KosapiException("Failed to fetch course: " + code);
-            }
             course.setDescription("TODO");
             course.setCode(kosCourse.getCode());
             course.setCredits(kosCourse.getCredits() != null ? Integer.parseInt(kosCourse.getCredits()) : 0);
