@@ -85,7 +85,7 @@ public class KosapiService {
         }
     }
 
-    List<Course> getCoursesInSemester(String semesterCode){
+    public List<Course> getCoursesInSemester(String semesterCode){
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + token);
         HttpEntity<Void> request = new HttpEntity<>(headers);
