@@ -12,10 +12,17 @@ import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
+import cz.cvut.kbss.ear.project.model.Parallel;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
+import cz.cvut.kbss.ear.project.model.enums.ParallelType;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
+import java.sql.Time;
+import java.time.DayOfWeek;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class CourseInSemesterServiceTest {
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Autowired
     private CourseInSemesterService courseInSemesterService;
@@ -48,22 +58,26 @@ public class CourseInSemesterServiceTest {
     @Autowired
     private CourseStudentDao courseStudentDao;
 
+    @Autowired
+    private ParallelService parallelService;
+
     @Test
     public void createNewCourseInSemester_createTwoInstancesInOneSemester_exceptionThrown() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
 
-        courseInSemesterService.createNewCourseInSemester(course, semester);
+        courseInSemesterService.addCourseToSemester(course, semester);
         assertThrows(CourseException.class,
-            () -> courseInSemesterService.createNewCourseInSemester(course, semester));
+            () -> courseInSemesterService.addCourseToSemester(course, semester));
     }
 
     @Test
     public void enrolTeacherInCourse_createCourseTeacher_courseTeacherCreated() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        User user = userService.persist(Generator.generateUser());
-        CourseInSemester courseInSemester = courseInSemesterService.createNewCourseInSemester(
+        User user = Generator.generateUser();
+        userService.persist(user);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
 
         courseInSemesterService.enrolAsTeacherInCourse(user, courseInSemester);
@@ -78,8 +92,9 @@ public class CourseInSemesterServiceTest {
     public void enrolStudentInCourse_createCourseStudent_courseStudentCreated() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        User user = userService.persist(Generator.generateUser());
-        CourseInSemester courseInSemester = courseInSemesterService.createNewCourseInSemester(
+        User user = Generator.generateUser();
+        userService.persist(user);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
 
         courseInSemesterService.enrolAsStudentInCourse(user, courseInSemester);
@@ -92,8 +107,9 @@ public class CourseInSemesterServiceTest {
     void unenrolFromCourse_unenrollCourseStudent_courseStudentUnenrolled() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        User user = userService.persist(Generator.generateUser());
-        CourseInSemester courseInSemester = courseInSemesterService.createNewCourseInSemester(
+        User user = Generator.generateUser();
+        userService.persist(user);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
         courseInSemesterService.enrolAsStudentInCourse(user, courseInSemester);
 
@@ -105,8 +121,9 @@ public class CourseInSemesterServiceTest {
     void unenrolFromCourse_unenrollCourseTeacher_courseTeacherUnenrolled() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        User user = userService.persist(Generator.generateUser());
-        CourseInSemester courseInSemester = courseInSemesterService.createNewCourseInSemester(
+        User user = Generator.generateUser();
+        userService.persist(user);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
         courseInSemesterService.enrolAsTeacherInCourse(user, courseInSemester);
 
@@ -120,12 +137,33 @@ public class CourseInSemesterServiceTest {
     void isUserEnroled_enrolledTeacher_true() {
         Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
-        User user = userService.persist(Generator.generateUser());
-        CourseInSemester courseInSemester = courseInSemesterService.createNewCourseInSemester(
+        User user = Generator.generateUser();
+        userService.persist(user);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
         courseInSemesterService.enrolAsTeacherInCourse(user, courseInSemester);
 
         final boolean result = courseInSemesterService.isUserEnroled(user, courseInSemester);
         assertTrue(result);
+    }
+
+    @Test
+    void getParallels_courseWithParallels_returnsParallels() {
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
+            course, semester);
+        Parallel parallel = new Parallel();
+        parallel.setName("C101");
+        parallel.setStartTime(new Time(16, 15, 0));
+        parallel.setEndTime(new Time(17, 45, 0));
+        parallel.setDayOfWeek(DayOfWeek.WEDNESDAY);
+        parallel.setCapacity(20);
+        parallel.setParallelType(ParallelType.EXCERCISE);
+        em.persist(parallel);
+        courseInSemester.addParallel(parallel);
+        em.merge(courseInSemester);
+
+        assertEquals(List.of(parallel), courseInSemesterService.getParallels(courseInSemester));
     }
 }

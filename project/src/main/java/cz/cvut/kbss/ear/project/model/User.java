@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "SYSTEM_USER")
@@ -104,6 +105,10 @@ public class User extends AbstractEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        setPassword(passwordEncoder.encode(password));
     }
 
     @Override
