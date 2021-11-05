@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.model.Course;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,10 +28,11 @@ public class KosapiServiceTest {
     }
 
     @Test
+    @Disabled // The test takes 30 seconds to execute
     public void getCoursesInSemester_B211semester_coursesFetchedFromKosAPI(){
         String semester_code = "B211";
         List<Course> courses = kosapiService.getCoursesInSemester(semester_code);
 
-        Assertions.assertTrue(courses.size() > 10);
+        Assertions.assertTrue(courses.size() > 2000);
     }
 }

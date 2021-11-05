@@ -1,5 +1,14 @@
 package cz.cvut.kbss.ear.project.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import cz.cvut.kbss.ear.project.exception.KosapiException;
+import cz.cvut.kbss.ear.project.kosapi.wrappers.Entry;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
+import cz.cvut.kbss.ear.project.kosapi.wrappers.WrappedEntries;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.kosapi.util.AtomConverter;
 import cz.cvut.kbss.ear.project.model.Course;
@@ -14,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,21 +57,24 @@ public class KosapiService {
         String courseUrl = "/courses/" + code;
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
 
+        ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Course course = new Course();
-
         try {
-            List<HashMap<String, String>> parsedResponse = AtomConverter.getAtomContent(response);
-            for (HashMap<String, String> responseValues : parsedResponse){
-                course.setDescription(responseValues.get("description"));
-                course.setCode(responseValues.get("code"));
-                course.setCredits(Integer.parseInt(responseValues.get("credits")));
-                course.setName(responseValues.get("name"));
-                course.setCompletionType(convertCompletionType(responseValues.get("completion")));
+            Entry<KosCourse> atomEntry = xmlMapper.readValue(response, new TypeReference<Entry<KosCourse>>() {});
+            KosCourse kosCourse = atomEntry.getContent();
+            if (kosCourse == null){
+                throw new KosapiException("Failed to fetch course: " + code);
             }
-
-        } catch (IOException | SAXException | JDOMException e){
-            return null;
+            course.setDescription("TODO");
+            course.setCode(kosCourse.getCode());
+            course.setCredits(kosCourse.getCredits() != null ? Integer.parseInt(kosCourse.getCredits()) : 0);
+            course.setName(kosCourse.getName());
+            course.setCompletionType(convertCompletionType(kosCourse.getCompletion()));
+        } catch (JsonProcessingException e) {
+            throw new KosapiException("Failed to parse course: " + code
+                    + "\nError message:" + e.getMessage());
         }
+
         return course;
     }
 
@@ -86,29 +97,52 @@ public class KosapiService {
     }
 
     public List<Course> getCoursesInSemester(String semesterCode){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, "Bearer " + token);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        String courseUrl = "/courses?sem=" + semesterCode + "&limit=1000"; // TODO offset
-        String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
-
         ArrayList<Course> result = new ArrayList<>();
-
         try {
-            List<HashMap<String, String>> parsedResponse = AtomConverter.getAtomContent(response);
-            for (HashMap<String, String> responseValues : parsedResponse){
+            ArrayList<KosCourse> kosCourses = getAllCourseEntriesInSemester(semesterCode);
+            for (KosCourse kosCourse : kosCourses){
                 Course course = new Course();
-                course.setDescription(responseValues.get("description"));
-                course.setCode(responseValues.get("code"));
-                course.setCredits(responseValues.get("credits") != null ? Integer.parseInt(responseValues.get("credits")) : 0);
-                course.setName(responseValues.get("name"));
-                course.setCompletionType(convertCompletionType(responseValues.get("completion")));
+                course.setDescription("TODO");
+                course.setCode(kosCourse.getCode());
+                course.setCredits(kosCourse.getCredits() != null ? Integer.parseInt(kosCourse.getCredits()) : 0);
+                course.setName(kosCourse.getName());
+                course.setCompletionType(convertCompletionType(kosCourse.getCompletion()));
                 result.add(course);
             }
-
-        } catch (IOException | SAXException | JDOMException e){
-            return null;
+        } catch (JsonProcessingException e) {
+            throw new KosapiException("Failed to parse courses from semester: " + semesterCode
+                    + "\nError message:" + e.getMessage());
         }
+        if (result.size() == 0){
+            throw new KosapiException("Failed to fetch courses from semester: " + semesterCode
+                    + "0 courses parsed");
+        }
+        return result;
+    }
+
+    private ArrayList<KosCourse> getAllCourseEntriesInSemester(String semesterCode) throws JsonProcessingException {
+        int offset = 0;
+        ArrayList<KosCourse> result = new ArrayList<>();
+
+        while (true){
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(AUTHORIZATION, "Bearer " + token);
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+            String courseUrl = "/courses?sem=" + semesterCode + "&limit=1000&offset=" + offset; // TODO offset
+            String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
+
+            ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            WrappedEntries<KosCourse> entries = xmlMapper.readValue(response, new TypeReference<WrappedEntries<KosCourse>>() {});
+            if (entries.getContentList().size() != 0){
+                result.addAll(entries.getContentList());
+                offset += 1000;
+            }
+
+            else{
+                break;
+            }
+        }
+
         return result;
     }
 

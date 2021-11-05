@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
+@Deprecated // First attempt to parse the api response values manually, replaced by JacksonXML mapper
 public class AtomConverter {
     public static List<HashMap<String, String>> getAtomContent(String apiResponse) throws IOException, SAXException, JDOMException {
         SAXBuilder saxBuilder = new SAXBuilder();
