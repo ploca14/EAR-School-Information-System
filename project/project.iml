@@ -151,5 +151,6 @@
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-oauth2-core:5.3.4.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-oauth2-jose:5.3.4.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.nimbusds:nimbus-jose-jwt:8.19" level="project" />
+    <orderEntry type="library" name="Maven: org.jdom:jdom:2.0.2" level="project" />
   </component>
 </module>
