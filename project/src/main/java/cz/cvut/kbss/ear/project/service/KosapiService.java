@@ -89,7 +89,7 @@ public class KosapiService {
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + token);
         HttpEntity<Void> request = new HttpEntity<>(headers);
-        String courseUrl = "/courses?sem=" + semesterCode + "&limit=1000";
+        String courseUrl = "/courses?sem=" + semesterCode + "&limit=1000"; // TODO offset
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
 
         ArrayList<Course> result = new ArrayList<>();
