@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import cz.cvut.kbss.ear.project.exception.KosapiException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourseInstance;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosTeacher;
+import cz.cvut.kbss.ear.project.kosapi.entities.TeacherLink;
 import cz.cvut.kbss.ear.project.kosapi.wrappers.Entry;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.kosapi.wrappers.WrappedEntries;
@@ -24,9 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class KosapiService {
@@ -50,29 +51,20 @@ public class KosapiService {
         this.token = tokenManager.getAccessToken();
     }
 
-    public Course getCourse(String code) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, "Bearer " + token);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        String courseUrl = "/courses/" + code;
+    public KosCourse getCourseInSemester(String courseCode, String semesterCode) {
+        HttpEntity<Void> request = getHttpRequestEntity();
+        String courseUrl = "/courses/" + courseCode + "?sem=" + semesterCode;
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
 
         ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        Course course = new Course();
         try {
             Entry<KosCourse> atomEntry = xmlMapper.readValue(response, new TypeReference<Entry<KosCourse>>() {});
             KosCourse kosCourse = atomEntry.getContent();
-            course.setDescription("TODO");
-            course.setCode(kosCourse.getCode());
-            course.setCredits(kosCourse.getCredits() != null ? Integer.parseInt(kosCourse.getCredits()) : 0);
-            course.setName(kosCourse.getName());
-            course.setCompletionType(convertCompletionType(kosCourse.getCompletion()));
+            return kosCourse;
         } catch (JsonProcessingException e) {
-            throw new KosapiException("Failed to parse course: " + code
+            throw new KosapiException("Failed to parse course: " + courseCode
                     + "\nError message:" + e.getMessage());
         }
-
-        return course;
     }
 
     private CourseCompletionType convertCompletionType(String kosapiCompletionType){
@@ -93,28 +85,14 @@ public class KosapiService {
         }
     }
 
-    public List<Course> getCoursesInSemester(String semesterCode){
-        ArrayList<Course> result = new ArrayList<>();
+    public List<KosCourse> getAllCoursesInSemester(String semesterCode){
         try {
             ArrayList<KosCourse> kosCourses = getAllCourseEntriesInSemester(semesterCode);
-            for (KosCourse kosCourse : kosCourses){
-                Course course = new Course();
-                course.setDescription("TODO");
-                course.setCode(kosCourse.getCode());
-                course.setCredits(kosCourse.getCredits() != null ? Integer.parseInt(kosCourse.getCredits()) : 0);
-                course.setName(kosCourse.getName());
-                course.setCompletionType(convertCompletionType(kosCourse.getCompletion()));
-                result.add(course);
-            }
+            return kosCourses;
         } catch (JsonProcessingException e) {
             throw new KosapiException("Failed to parse courses from semester: " + semesterCode
                     + "\nError message:" + e.getMessage());
         }
-        if (result.size() == 0){
-            throw new KosapiException("Failed to fetch courses from semester: " + semesterCode
-                    + "0 courses parsed");
-        }
-        return result;
     }
 
     private ArrayList<KosCourse> getAllCourseEntriesInSemester(String semesterCode) throws JsonProcessingException {
@@ -122,9 +100,7 @@ public class KosapiService {
         ArrayList<KosCourse> result = new ArrayList<>();
 
         while (true){
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(AUTHORIZATION, "Bearer " + token);
-            HttpEntity<Void> request = new HttpEntity<>(headers);
+            HttpEntity<Void> request = getHttpRequestEntity();
             String courseUrl = "/courses?sem=" + semesterCode + "&limit=1000&offset=" + offset; // TODO offset
             String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
 
@@ -143,12 +119,42 @@ public class KosapiService {
         return result;
     }
 
-    /**
-    List<KosStudent> getStudentsInKosCourse(KosCourse kosCourse){
+    public List<KosTeacher> getTeachersInCourse(String courseCode, String semesterCode){
+        KosCourse kosCourse = getCourseInSemester(courseCode, semesterCode);
+        KosCourseInstance instance = kosCourse.getInstance();
+        TreeSet<TeacherLink> teachersLinks = new TreeSet<TeacherLink>(Arrays.asList(instance.getInstructors()));
+        teachersLinks.addAll(Arrays.asList(instance.getLecturers()));
+        ArrayList<KosTeacher> kosTeachers = new ArrayList<>();
 
+        for (TeacherLink teacherLink : teachersLinks){
+            try {
+                kosTeachers.add(getKosTeacherFromTeacherLink(teacherLink));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace(); // TODO logging later
+            }
+        }
+
+        return kosTeachers;
     }
 
-    List<KosTeacher> getTeachersInKosCourse(KosCourse kosCourse){
+
+    private KosTeacher getKosTeacherFromTeacherLink(TeacherLink teacherLink) throws JsonProcessingException {
+        HttpEntity<Void> request = getHttpRequestEntity();
+        String response = restTemplate.exchange(resourceServerURL + "/" + teacherLink.getUrl(), HttpMethod.GET, request, String.class).getBody();
+        ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        Entry<KosTeacher> atomEntry = xmlMapper.readValue(response, new TypeReference<Entry<KosTeacher>>() {
+        });
+        return atomEntry.getContent();
+    }
+
+    private HttpEntity<Void> getHttpRequestEntity(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(AUTHORIZATION, "Bearer " + token);
+        return new HttpEntity<>(headers);
+    }
+
+    /**
+    List<KosStudent> getStudentsInKosCourse(KosCourse kosCourse){
 
     }
 

@@ -1,5 +1,6 @@
 package cz.cvut.kbss.ear.project.kosapi.entities;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.io.Serializable;
@@ -18,6 +19,9 @@ public class KosCourse implements Serializable {
 
     @JacksonXmlProperty
     private String completion;
+
+    @JacksonXmlElementWrapper(localName = "instance", useWrapping = false)
+    private KosCourseInstance instance;
 
     public String getCredits() {
         return credits;
@@ -49,6 +53,14 @@ public class KosCourse implements Serializable {
 
     public void setCompletion(String completion) {
         this.completion = completion;
+    }
+
+    public KosCourseInstance getInstance() {
+        return instance;
+    }
+
+    public void setInstance(KosCourseInstance instance) {
+        this.instance = instance;
     }
 
     @Override
