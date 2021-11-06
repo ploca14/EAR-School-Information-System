@@ -1,7 +1,7 @@
 package cz.cvut.kbss.ear.project.kosapi.entities;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import cz.cvut.kbss.ear.project.kosapi.links.TeacherLink;
 
 public class KosCourseInstance {
 
