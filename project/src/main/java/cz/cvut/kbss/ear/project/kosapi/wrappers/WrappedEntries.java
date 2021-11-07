@@ -5,6 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Used when fetching List of atom:entry. The root is an entry node containing list of atom:entry nodes.
@@ -23,5 +25,9 @@ public class WrappedEntries<T> implements Serializable {
             result.add(singleEntry.getContent());
         }
         return result;
+    }
+
+    public List<Entry<T>> unwrap() {
+        return Arrays.asList(entry);
     }
 }

@@ -1,12 +1,13 @@
-package cz.cvut.kbss.ear.project.kosapi.entities;
+package cz.cvut.kbss.ear.project.kosapi.links;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class TeacherLink implements Comparable<TeacherLink>{
+public class AtomLink implements Comparable<AtomLink>, Serializable {
     @JacksonXmlProperty(isAttribute = true, localName = "href", namespace = "xlink")
-    private String url;
+    protected String url;
 
     public String getUrl() {
         return url;
@@ -20,7 +21,7 @@ public class TeacherLink implements Comparable<TeacherLink>{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TeacherLink that = (TeacherLink) o;
+        AtomLink that = (AtomLink) o;
         return Objects.equals(url, that.url);
     }
 
@@ -31,13 +32,13 @@ public class TeacherLink implements Comparable<TeacherLink>{
 
     @Override
     public String toString() {
-        return "TeacherLink{" +
+        return "AtomLink{" +
                 "url='" + url + '\'' +
                 '}';
     }
 
     @Override
-    public int compareTo(TeacherLink o) {
+    public int compareTo(AtomLink o) {
         return this.url.equals(o.url) ? 0 : 1;
     }
 }
