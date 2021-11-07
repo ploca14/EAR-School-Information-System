@@ -1,5 +1,6 @@
 package cz.cvut.kbss.ear.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.Role;
 import javax.persistence.Column;
@@ -29,6 +30,7 @@ public class User extends AbstractEntity {
     private String lastName;
 
     @NotNull
+    @JsonIgnore
     private String password;
 
     @NotNull
@@ -123,5 +125,10 @@ public class User extends AbstractEntity {
             ", email='" + email + '\'' +
             ", role=" + role +
             '}';
+    }
+
+    @JsonIgnore
+    public boolean isAdmin() {
+        return role.equals(Role.ADMIN);
     }
 }
