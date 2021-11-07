@@ -5,6 +5,7 @@ import cz.cvut.kbss.ear.project.dao.UserDao;
 import cz.cvut.kbss.ear.project.exception.UserException;
 import cz.cvut.kbss.ear.project.model.Parallel;
 import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.model.enums.Role;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -34,15 +35,25 @@ public class UserService {
     }
 
     @Transactional
+    public void addRoleToUser(User user, Role role) {
+        user.setRole(role);
+        dao.update(user);
+    }
+
+    @Transactional
     public User find(Integer id) {
         return dao.find(id);
+    }
+
+    public User getUserByUsername(String username) {
+        return dao.findByUsername(username);
     }
 
     @Transactional
     public void persist(User user) {
         Objects.requireNonNull(user);
 
-        if (!isUsernameUnique(user.getUsername())) {
+        if (exists(user.getUsername())) {
             throw new UserException(
                 String.format("User with username %s already exists", user.getUsername()));
         }
@@ -59,7 +70,7 @@ public class UserService {
                 Collectors.toSet());
     }
 
-    private boolean isUsernameUnique(String username) {
-        return dao.findByUsername(username) == null;
+    public boolean exists(String username) {
+        return dao.findByUsername(username) != null;
     }
 }
