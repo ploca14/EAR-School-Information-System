@@ -185,17 +185,32 @@ public class KosapiService {
         return kosTeachers;
     }
 
+    public List<KosStudent> getStudentsInParallel(KosParallel kosParallel){
+        String parallelId = extractParallelIdFromLink(kosParallel.getLink());
+        HttpEntity<Void> request = getHttpRequestEntity();
+        String courseUrl = "/parallels/" + parallelId + "/students" + "&limit=1000";
+        String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
+        ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try {
+            WrappedEntries<KosStudent> wrappedEntries = xmlMapper.readValue(response, new TypeReference<WrappedEntries<KosStudent>>() {});
+            return wrappedEntries.getContentList();
+        } catch (JsonProcessingException e) {
+            throw new KosapiException("Failed to parse students from parallel id: " + parallelId
+                    + " code: " + kosParallel.getCode()
+                    + "\nError message:" + e.getMessage());
+        }
+    }
+
+    private String extractParallelIdFromLink(ParallelLink parallelLink){
+        return parallelLink.getUrl().split("/")[1];
+    }
+
     private HttpEntity<Void> getHttpRequestEntity(){
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, "Bearer " + token);
         return new HttpEntity<>(headers);
     }
-
-    /**List<KosStudent> getStudentsInParallel(KosParallel kosParallel){
-        HttpEntity<Void> request = getHttpRequestEntity();
-        String courseUrl = "/parallels/" + kosParallel.getCode() + ?sem=" + semesterCode + "&limit=1000;
-        String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
-    }**/
 
     /**
     List<KosStudent> getStudentsInKosCourse(KosCourse kosCourse){
