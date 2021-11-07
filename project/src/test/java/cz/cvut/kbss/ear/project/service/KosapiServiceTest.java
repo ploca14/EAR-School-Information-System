@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosParallel;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosTeacher;
 import cz.cvut.kbss.ear.project.model.Course;
 import org.junit.jupiter.api.Assertions;
@@ -107,5 +108,41 @@ public class KosapiServiceTest {
 
         Assertions.assertTrue(aubrechtFound);
         Assertions.assertTrue(kremenFound);
+    }
+
+    @Test
+    public void getStudentsInParallel_getStudentsInEARParallel103_belkapreInStudents(){
+        String courseCode = "B6B36EAR";
+        String semesterCode = "B211";
+        boolean belkapreFound = false;
+        List<KosParallel> parallels = kosapiService.getParallelsInCourse(courseCode, semesterCode);
+        KosParallel parallel103 = null;
+        for (KosParallel parallel : parallels){
+            if (parallel.getCode().equals("103")) parallel103 = parallel;
+        }
+
+        List<KosStudent> students = kosapiService.getStudentsInParallel(parallel103);
+
+        for (KosStudent student : students){
+            if (student.getUsername().equals("belkapre")) belkapreFound = true;
+        }
+
+        Assertions.assertTrue(belkapreFound);
+    }
+
+    @Test
+    public void gestStudentsInCourse_getStudentsInEAR_plocivojInStudents(){
+        String courseCode = "B6B36EAR";
+        String semesterCode = "B211";
+        boolean plocivojFound = false;
+        KosCourse kosCourse = kosapiService.getCourseInSemester(courseCode, semesterCode);
+
+        List<KosStudent> students = kosapiService.getStudentsInCourse(kosCourse);
+
+        for (KosStudent student : students){
+            if (student.getUsername().equals("plocivoj")) plocivojFound = true;
+        }
+
+        Assertions.assertTrue(plocivojFound);
     }
 }

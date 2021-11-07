@@ -186,9 +186,8 @@ public class KosapiService {
     }
 
     public List<KosStudent> getStudentsInParallel(KosParallel kosParallel){
-        String parallelId = extractParallelIdFromLink(kosParallel.getLink());
         HttpEntity<Void> request = getHttpRequestEntity();
-        String courseUrl = "/parallels/" + parallelId + "/students" + "&limit=1000";
+        String courseUrl = "/" + kosParallel.getLink().getUrl() + "students" + "?limit=1000";
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
         ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -196,14 +195,10 @@ public class KosapiService {
             WrappedEntries<KosStudent> wrappedEntries = xmlMapper.readValue(response, new TypeReference<WrappedEntries<KosStudent>>() {});
             return wrappedEntries.getContentList();
         } catch (JsonProcessingException e) {
-            throw new KosapiException("Failed to parse students from parallel id: " + parallelId
+            throw new KosapiException("Failed to parse students from parallel: " + kosParallel.getLink().getUrl()
                     + " code: " + kosParallel.getCode()
                     + "\nError message:" + e.getMessage());
         }
-    }
-
-    private String extractParallelIdFromLink(ParallelLink parallelLink){
-        return parallelLink.getUrl().split("/")[1];
     }
 
     private HttpEntity<Void> getHttpRequestEntity(){
@@ -212,12 +207,18 @@ public class KosapiService {
         return new HttpEntity<>(headers);
     }
 
-    /**
-    List<KosStudent> getStudentsInKosCourse(KosCourse kosCourse){
+    public List<KosStudent> getStudentsInCourse(KosCourse kosCourse){
+        HttpEntity<Void> request = getHttpRequestEntity();
+        String courseUrl = "/courses/" + kosCourse.getCode() + "/students" + "?sem="+ kosCourse.getInstance().getSemesterCode() + "&limit=1000";
+        String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
+        ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+        try {
+            WrappedEntries<KosStudent> wrappedEntries = xmlMapper.readValue(response, new TypeReference<WrappedEntries<KosStudent>>() {});
+            return wrappedEntries.getContentList();
+        } catch (JsonProcessingException e) {
+            throw new KosapiException("Failed to parse students from course: " + kosCourse.getCode()
+                    + "\nError message:" + e.getMessage());
+        }
     }
-
-
-
-    **/
 }
