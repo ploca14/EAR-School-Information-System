@@ -45,6 +45,10 @@ public class KosapiService {
         this.token = tokenManager.getAccessToken();
     }
 
+    public KosCourse getCourse(String courseCode){
+        return getCourseInSemester(courseCode, null);
+    }
+
     public KosCourse getCourseInSemester(String courseCode, String semesterCode) {
         HttpEntity<Void> request = getHttpRequestEntity();
         String courseUrl = "/courses/" + courseCode + "?sem=" + semesterCode;

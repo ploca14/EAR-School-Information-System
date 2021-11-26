@@ -55,4 +55,17 @@ public class UserController {
     }
 
     // TODO: Implement refresh route for refreshing JWT tokens
+
+    /**
+     * Resources
+     * TODO: Neudelat endpointy na login/logout/register takhle?: api/users/logout api/users/register api/users/login
+     *
+     * api/users/id/timetable
+     * api/users/id/roles
+     * - POST:
+     *      - priradit roli
+     * - DELETE:
+     *      - odebrat roli
+     *
+     */
 }

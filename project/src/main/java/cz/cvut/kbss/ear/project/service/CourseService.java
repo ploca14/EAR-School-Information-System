@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.CourseDao;
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import java.util.List;
@@ -35,6 +36,12 @@ public class CourseService {
         dao.persist(course);
 
         return course;
+    }
+
+    @Transactional
+    public Course createNewCourse(KosCourse kosCourse){
+        return createNewCourse(kosCourse.getName(), Integer.parseInt(kosCourse.getCredits()),
+                kosCourse.getCode(), CourseCompletionType.valueOf(kosCourse.getCompletion()));
     }
 
     @Transactional
