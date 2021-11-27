@@ -40,12 +40,6 @@ public class CourseService {
     }
 
     @Transactional
-    public Course createNewCourse(KosCourse kosCourse){
-        return createNewCourse(kosCourse.getName(), Integer.parseInt(kosCourse.getCredits()),
-                kosCourse.getCode(), CourseCompletionType.valueOf(kosCourse.getCompletion()));
-    }
-
-    @Transactional
     public List<Course> findAll() {
         return dao.findAll();
     }

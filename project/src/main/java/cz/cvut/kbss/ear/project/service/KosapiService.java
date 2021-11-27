@@ -68,17 +68,17 @@ public class KosapiService {
     private CourseCompletionType convertCompletionType(String kosapiCompletionType){
         switch(kosapiCompletionType){
             case "CLFD_CREDIT":
-                return CourseCompletionType.KZ;
+                return CourseCompletionType.CLFD_CREDIT;
             case "CREDIT_EXAM":
-                return CourseCompletionType.ZAK;
+                return CourseCompletionType.CREDIT_EXAM;
             case "CREDIT":
-                return CourseCompletionType.Z;
+                return CourseCompletionType.CREDIT;
             case "DEFENCE":
-                return CourseCompletionType.O;
+                return CourseCompletionType.DEFENCE;
             case "EXAM":
-                return CourseCompletionType.ZK;
+                return CourseCompletionType.EXAM;
             default:
-                return CourseCompletionType.U;
+                return CourseCompletionType.UNDEFINED;
 
         }
     }

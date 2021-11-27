@@ -20,9 +20,9 @@ public class CourseServiceTest {
 
     @Test
     public void createNewCourse_createTwoCoursesWithSameCode_CourseException() {
-        courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
 
         assertThrows(CourseException.class,
-            () -> courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ));
+            () -> courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT));
     }
 }

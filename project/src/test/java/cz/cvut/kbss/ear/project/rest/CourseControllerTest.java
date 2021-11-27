@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -115,7 +114,7 @@ public class CourseControllerTest extends BaseControllerTestRunner{
         toCreate.setName("Custom course");
         toCreate.setCredits(4);
         toCreate.setDescription("Custom course desc");
-        toCreate.setCompletionType(CourseCompletionType.KZ);
+        toCreate.setCompletionType(CourseCompletionType.CLFD_CREDIT);
         toCreate.setCode("CUSTOMCODE");
 
         mockMvc.perform(post("/api/courses").content(toJson(toCreate)).contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -129,17 +128,22 @@ public class CourseControllerTest extends BaseControllerTestRunner{
     @Test
     public void createCourseFromKos_createEAR_courseCreatedCalledOnService() throws Exception {
         final String code = "B6B36EAR";
-        KosCourse kosCourseMock = mock(KosCourse.class);
-        Course courseMock = mock(Course.class);
-        when(kosapiService.getCourse(code)).thenReturn(kosCourseMock);
-        when(courseService.createNewCourse(kosCourseMock)).thenReturn(courseMock);
+        KosCourse kosCourse = new KosCourse();
+        kosCourse.setCode(code);
+        kosCourse.setCredits("5");
+        kosCourse.setName(new String[]{"ear", "ear"});
+        kosCourse.setCompletion("CREDIT");
+        when(kosapiService.getCourse(code)).thenReturn(kosCourse);
 
         mockMvc.perform(post("/api/courses/kos").content(toJson(code)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isCreated());
 
-        final ArgumentCaptor<KosCourse> captor = ArgumentCaptor.forClass(KosCourse.class);
-        verify(courseService).createNewCourse(captor.capture());
-        assertEquals(kosCourseMock, captor.getValue());
+        final ArgumentCaptor<Course> captor = ArgumentCaptor.forClass(Course.class);
+        verify(courseService).persist(captor.capture());
+        assertEquals(kosCourse.getCode(), captor.getValue().getCode());
+        assertEquals(Integer.parseInt(kosCourse.getCredits()), captor.getValue().getCredits());
+        assertEquals(kosCourse.getName(), captor.getValue().getName());
+        assertEquals(kosCourse.getCompletion(), captor.getValue().getCompletionType().toString());
     }
 
     @Test

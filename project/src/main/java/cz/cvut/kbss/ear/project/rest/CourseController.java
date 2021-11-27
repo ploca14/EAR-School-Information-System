@@ -8,6 +8,7 @@ import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
+import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -30,9 +31,11 @@ import java.util.List;
  * /api/courses/code/semesterCode DONE
  * - POST: DONE
  *    - vytvor instanci kurzu v semestru na zaklade course DONE
+ *
+ * - /api/courses/code/semesterCode/kos
+ * - PUT:
+ *     - import veci z KOSu
  * /api/courses/code/semesterCode/participants
- * - POST:
- *     - import z KOSu
  * /api/courses/code/semesterCode/participants/students
  * - POST:
  *      - enrol
@@ -50,7 +53,6 @@ import java.util.List;
  * - DELETE:
  *      - unenrol
  *      - remove parallel
- * /api/courses/code/parallels/participants?sem=default_newest TODO: mozna?
  **/
 @RestController
 @RequestMapping("/api/courses")
@@ -123,9 +125,18 @@ public class CourseController {
     @PostMapping(value = "/kos", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourseFromKos(@RequestBody String code) {
         KosCourse kosCourse = kosapiService.getCourse(code);
-        Course course = courseService.createNewCourse(kosCourse);
-        LOG.debug("Created course {} \n from kos course {}.", course, kosCourse);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", course.getCode());
+        courseService.persist(KosapiEntityConverter.kosCourseToCourse(kosCourse));
+        LOG.debug("Created course from kos course {}.", kosCourse);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", kosCourse.getCode());
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/{courseCode}/{semesterCode}/kos ", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@RequestBody String code) {
+        KosCourse kosCourse = kosapiService.getCourse(code);
+        courseService.persist(KosapiEntityConverter.kosCourseToCourse(kosCourse));
+        LOG.debug("Created course from kos course {}.", kosCourse);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", kosCourse.getCode());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }

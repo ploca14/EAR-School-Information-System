@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.CourseParticipant;
@@ -31,13 +32,16 @@ public class CourseInSemesterService {
 
     private final CourseInSemesterDao dao;
 
+    private final KosapiService kosapiService;
+
     public CourseInSemesterService(
         CourseTeacherDao courseTeacherDao,
         CourseStudentDao courseStudentDao,
         CourseParticipantDao courseParticipantDao,
         CourseInSemesterDao courseInSemesterDao,
         CourseDao courseDao,
-        SemesterDao semesterDao
+        SemesterDao semesterDao,
+        KosapiService kosapiService
     ) {
         this.courseTeacherDao = courseTeacherDao;
         this.courseStudentDao = courseStudentDao;
@@ -45,6 +49,7 @@ public class CourseInSemesterService {
         this.courseDao = courseDao;
         this.semesterDao = semesterDao;
         this.dao = courseInSemesterDao;
+        this.kosapiService = kosapiService;
     }
 
     @Transactional

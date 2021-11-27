@@ -63,7 +63,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void createNewCourseInSemester_createTwoInstancesInOneSemester_exceptionThrown() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
 
         courseInSemesterService.addCourseToSemester(course, semester);
@@ -73,7 +73,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void enrolTeacherInCourse_createCourseTeacher_courseTeacherCreated() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -90,7 +90,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void enrolStudentInCourse_createCourseStudent_courseStudentCreated() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -105,7 +105,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void unenrolFromCourse_unenrollCourseStudent_courseStudentUnenrolled() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -119,7 +119,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void unenrolFromCourse_unenrollCourseTeacher_courseTeacherUnenrolled() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -135,7 +135,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void isUserEnroled_enrolledTeacher_true() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -149,7 +149,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void getParallels_courseWithParallels_returnsParallels() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
@@ -159,7 +159,7 @@ public class CourseInSemesterServiceTest {
         parallel.setEndTime(new Time(17, 45, 0));
         parallel.setDayOfWeek(DayOfWeek.WEDNESDAY);
         parallel.setCapacity(20);
-        parallel.setParallelType(ParallelType.EXCERCISE);
+        parallel.setParallelType(ParallelType.TUTORIAL);
         em.persist(parallel);
         courseInSemester.addParallel(parallel);
         em.merge(courseInSemester);

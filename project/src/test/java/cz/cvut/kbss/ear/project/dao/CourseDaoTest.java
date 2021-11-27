@@ -12,13 +12,11 @@ import cz.cvut.kbss.ear.project.rest.CourseController;
 import cz.cvut.kbss.ear.project.service.CourseService;
 import cz.cvut.kbss.ear.project.service.KosapiService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class,
@@ -36,7 +34,7 @@ public class CourseDaoTest {
 
     @Test
     public void findByCode_courseExists_returnsCourseWithMatchingCode() {
-        courseService.createNewCourse("Kurz", 5, "B36EAR", CourseCompletionType.KZ);
+        courseService.createNewCourse("Kurz", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
 
         final Course result = courseDao.findByCode("B36EAR");
 
