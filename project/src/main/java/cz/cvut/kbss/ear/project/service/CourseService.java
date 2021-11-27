@@ -20,6 +20,7 @@ public class CourseService {
     }
 
     @Transactional
+    @Deprecated // Dont use, use persist instead, this does not contain all course attributes
     public Course createNewCourse(
         String name, Integer credits, String code,
         CourseCompletionType completionType
@@ -57,6 +58,9 @@ public class CourseService {
     @Transactional
     public void persist(Course course) {
         Objects.requireNonNull(course);
+        if (dao.findByCode(course.getCode()) != null) {
+            throw new CourseException("Course with this code already exists");
+        }
         dao.persist(course);
     }
 }

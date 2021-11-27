@@ -8,6 +8,7 @@ import cz.cvut.kbss.ear.project.config.KosApiConfig;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
+import cz.cvut.kbss.ear.project.rest.CourseController;
 import cz.cvut.kbss.ear.project.service.CourseService;
 import cz.cvut.kbss.ear.project.service.KosapiService;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {KosApiConfig.class, TokenManager.class, KosapiService.class}))
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class}))
 public class CourseDaoTest {
 
     @Autowired

@@ -12,42 +12,43 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Resources
  * /api/courses
  * - POST:
  *      - manualni vytvoreni, bude brat Course entity
- *      - import z kosu, bude brat code
- * /api/courses/code
- * /api/courses/code/semesterCode
+ * /api/courses/kos
+ * - POST:
+ *     - import z kosu
+ * /api/courses/id
+ * /api/courses/id/semesterCode
  * - POST:
  *    - vytvor instanci kurzu v semestru na zaklade course
- * /api/courses/code/semesterCode/participants
+ * /api/courses/id/semesterCode/participants
  * - POST:
  *     - import z KOSu
- * /api/courses/code/semesterCode/participants/students
+ * /api/courses/id/semesterCode/participants/students
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/code/semesterCode/participants/teachers
+ * /api/courses/id/semesterCode/participants/teachers
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/code/semesterCode/parallels
+ * /api/courses/id/semesterCode/parallels
  * - POST:
  *      - enrol
  *      - create parallel
  * - DELETE:
  *      - unenrol
  *      - remove parallel
- * /api/courses/code/parallels/participants?sem=default_newest TODO: mozna?
+ * /api/courses/id/parallels/participants?sem=default_newest TODO: mozna?
  **/
 @RestController
 @RequestMapping("/api/courses")
@@ -75,20 +76,30 @@ public class CourseController {
         this.kosapiService = kosapiService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createCourse(@RequestBody Course course) {
-        course = courseService.createNewCourse(course.getName(), course.getCredits(), course.getCode(), course.getCompletionType());
-        LOG.debug("Created course {}.", course);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", course.getCode());
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Course> getCourses() {
+        return courseService.findAll();
+    }
+
+    @GetMapping(value = "/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public Course getCourseById(@PathVariable Integer id) {
+        return courseService.find(id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> createCourse(@RequestBody Course course) {
+        courseService.persist(course);
+        LOG.debug("Created course {}.", course);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", course.getId());
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/kos", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourseFromKos(@RequestBody String code) {
         KosCourse kosCourse = kosapiService.getCourse(code);
         Course course = courseService.createNewCourse(kosCourse);
         LOG.debug("Created course {} \n from kos course {}.", course, kosCourse);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", course.getCode());
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", course.getId());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }
