@@ -1,9 +1,6 @@
 package cz.cvut.kbss.ear.project.service;
 
-import cz.cvut.kbss.ear.project.dao.CourseInSemesterDao;
-import cz.cvut.kbss.ear.project.dao.CourseParticipantDao;
-import cz.cvut.kbss.ear.project.dao.CourseStudentDao;
-import cz.cvut.kbss.ear.project.dao.CourseTeacherDao;
+import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
@@ -28,17 +25,25 @@ public class CourseInSemesterService {
 
     private final CourseParticipantDao courseParticipantDao;
 
+    private final CourseDao courseDao;
+
+    private final SemesterDao semesterDao;
+
     private final CourseInSemesterDao dao;
 
     public CourseInSemesterService(
         CourseTeacherDao courseTeacherDao,
         CourseStudentDao courseStudentDao,
         CourseParticipantDao courseParticipantDao,
-        CourseInSemesterDao courseInSemesterDao
+        CourseInSemesterDao courseInSemesterDao,
+        CourseDao courseDao,
+        SemesterDao semesterDao
     ) {
         this.courseTeacherDao = courseTeacherDao;
         this.courseStudentDao = courseStudentDao;
         this.courseParticipantDao = courseParticipantDao;
+        this.courseDao = courseDao;
+        this.semesterDao = semesterDao;
         this.dao = courseInSemesterDao;
     }
 
@@ -50,6 +55,11 @@ public class CourseInSemesterService {
     @Transactional
     public CourseInSemester find(Integer id) {
         return dao.find(id);
+    }
+
+    @Transactional
+    public CourseInSemester findByCode(String course_code, String semester_code){
+        return dao.findCourseInSemester(courseDao.findByCode(course_code), semesterDao.findByCode(semester_code));
     }
 
     @Transactional

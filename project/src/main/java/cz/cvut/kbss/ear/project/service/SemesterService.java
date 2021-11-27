@@ -30,6 +30,9 @@ public class SemesterService {
     }
 
     @Transactional
+    public Semester findByCode(String code){ return dao.findByCode(code); }
+
+    @Transactional
     public void persist(Semester semester) {
         Objects.requireNonNull(semester);
         dao.persist(semester);

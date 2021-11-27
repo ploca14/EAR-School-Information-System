@@ -56,6 +56,11 @@ public class CourseService {
     }
 
     @Transactional
+    public Course findByCode(String code){
+        return dao.findByCode(code);
+    }
+
+    @Transactional
     public void persist(Course course) {
         Objects.requireNonNull(course);
         if (dao.findByCode(course.getCode()) != null) {

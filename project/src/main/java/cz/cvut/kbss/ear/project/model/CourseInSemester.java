@@ -3,6 +3,7 @@ package cz.cvut.kbss.ear.project.model;
 import com.sun.istack.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -78,5 +79,18 @@ public class CourseInSemester extends AbstractEntity {
     public void removeParallel(Parallel parallel) {
         parallels.remove(parallel);
         parallel.setCourseInSemester(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CourseInSemester that = (CourseInSemester) o;
+        return Objects.equals(course, that.course) && Objects.equals(semester, that.semester) && Objects.equals(teachers, that.teachers) && Objects.equals(parallels, that.parallels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(course, semester, teachers, parallels);
     }
 }

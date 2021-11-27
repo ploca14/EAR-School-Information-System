@@ -1,8 +1,11 @@
 package cz.cvut.kbss.ear.project.rest;
 
+import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
+import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
 import org.slf4j.Logger;
@@ -11,44 +14,43 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * Resources
- * /api/courses
- * - POST:
- *      - manualni vytvoreni, bude brat Course entity
- * /api/courses/kos
- * - POST:
- *     - import z kosu
- * /api/courses/id
- * /api/courses/id/semesterCode
- * - POST:
- *    - vytvor instanci kurzu v semestru na zaklade course
- * /api/courses/id/semesterCode/participants
+ * /api/courses DONE
+ * - POST: DONE
+ *      - manualni vytvoreni, bude brat Course entity DONE
+ * /api/courses/kos (Tady neni GET)
+ * - POST: DONE
+ *     - import z kosu DONE
+ * /api/courses/code DONE
+ * /api/courses/code/semesterCode DONE
+ * - POST: DONE
+ *    - vytvor instanci kurzu v semestru na zaklade course DONE
+ * /api/courses/code/semesterCode/participants
  * - POST:
  *     - import z KOSu
- * /api/courses/id/semesterCode/participants/students
+ * /api/courses/code/semesterCode/participants/students
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/id/semesterCode/participants/teachers
+ * /api/courses/code/semesterCode/participants/teachers
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/id/semesterCode/parallels
+ * /api/courses/code/semesterCode/parallels
  * - POST:
  *      - enrol
  *      - create parallel
  * - DELETE:
  *      - unenrol
  *      - remove parallel
- * /api/courses/id/parallels/participants?sem=default_newest TODO: mozna?
+ * /api/courses/code/parallels/participants?sem=default_newest TODO: mozna?
  **/
 @RestController
 @RequestMapping("/api/courses")
@@ -81,16 +83,40 @@ public class CourseController {
         return courseService.findAll();
     }
 
-    @GetMapping(value = "/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public Course getCourseById(@PathVariable Integer id) {
-        return courseService.find(id);
+    @GetMapping(value = "/{code}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public Course getCourseByCode(@PathVariable String code) {
+        return courseService.findByCode(code);
+    }
+
+    @GetMapping(value = "/{code}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public CourseInSemester getCourseInSemester(@PathVariable String code, @PathVariable String semesterCode) {
+        return courseInSemesterService.findByCode(code, semesterCode);
+    }
+
+    @PostMapping(value = "/{courseCode}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> createCourseInSemester(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        Course course = courseService.findByCode(courseCode);
+        if (course == null){
+            throw new CourseException("Course with code " + courseCode + " does not exist, therefore an instance in a semester" +
+                    "cannot be created. Create the course first by POST on api/courses.");
+        }
+        Semester semester = semesterService.findByCode(semesterCode);
+
+        if (semester == null){
+            throw new SemesterException("Semester with a given code does not exist.");
+        }
+
+        courseInSemesterService.addCourseToSemester(course, semester);
+        LOG.debug("Created course with {} \n " + "in semester {}.", course, semester);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}/{semesterCode}", course.getCode(), semesterCode);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourse(@RequestBody Course course) {
         courseService.persist(course);
         LOG.debug("Created course {}.", course);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", course.getId());
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", course.getCode());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
@@ -99,7 +125,7 @@ public class CourseController {
         KosCourse kosCourse = kosapiService.getCourse(code);
         Course course = courseService.createNewCourse(kosCourse);
         LOG.debug("Created course {} \n from kos course {}.", course, kosCourse);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", course.getId());
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", course.getCode());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }

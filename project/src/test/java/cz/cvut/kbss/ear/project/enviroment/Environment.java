@@ -10,8 +10,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import java.nio.charset.StandardCharsets;
 
 public class Environment {
-    @Autowired
-    private static ObjectMapper objectMapper;
 
     /**
      * Gets a Jackson object mapper for mapping JSON to Java and vice versa.
