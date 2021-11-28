@@ -76,4 +76,8 @@ public class UserService {
     public boolean exists(String username) {
         return dao.findByUsername(username) != null;
     }
+
+    public User findByUsername(String username) {
+        return dao.findByUsername(username);
+    }
 }

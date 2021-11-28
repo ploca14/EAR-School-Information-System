@@ -23,25 +23,14 @@ public class KosapiEntityConverter {
         return course;
     }
 
-    public static User kosStudentToUser(KosStudent kosStudent){
+    public static User kosParticipantToUser(KosParticipant kosParticipant){
         User user = new User();
-        user.setEmail(kosStudent.getEmail());
-        user.setFirstName(kosStudent.getFirstName());
-        user.setLastName(kosStudent.getLastName());
-        user.setUsername(kosStudent.getUsername());
+        user.setEmail(kosParticipant.getEmail());
+        user.setFirstName(kosParticipant.getFirstName());
+        user.setLastName(kosParticipant.getLastName());
+        user.setUsername(kosParticipant.getUsername());
         user.setRole(Role.REGULAR_USER);
         user.setPassword("TODO");// TODO vygenerovat nejake encryptovane random heslo
-        return user;
-    }
-
-    public static User kosTeacherToUser(KosTeacher kosTeacher){
-        User user = new User();
-        user.setEmail(kosTeacher.getEmail());
-        user.setFirstName(kosTeacher.getFirstName());
-        user.setLastName(kosTeacher.getLastName());
-        user.setUsername(kosTeacher.getUsername());
-        user.setRole(Role.REGULAR_USER);
-        user.setPassword("TODO"); // TODO vygenerovat nejake encryptovane random heslo
         return user;
     }
 

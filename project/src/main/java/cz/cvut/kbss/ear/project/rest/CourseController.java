@@ -65,6 +65,8 @@ public class CourseController {
 
     private final CourseInSemesterService courseInSemesterService;
 
+    private final CourseSynchronisationService courseSynchronisationService;
+
     private final SemesterService semesterService;
 
     private final ParallelService parallelService;
@@ -72,12 +74,14 @@ public class CourseController {
     private final KosapiService kosapiService;
 
     public CourseController(CourseService courseService, CourseInSemesterService courseInSemesterService,
-                            SemesterService semesterService, ParallelService parallelService, KosapiService kosapiService) {
+                            SemesterService semesterService, ParallelService parallelService, KosapiService kosapiService,
+                            CourseSynchronisationService courseSynchronisationService) {
         this.courseService = courseService;
         this.courseInSemesterService = courseInSemesterService;
         this.semesterService = semesterService;
         this.parallelService = parallelService;
         this.kosapiService = kosapiService;
+        this.courseSynchronisationService = courseSynchronisationService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -131,12 +135,14 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+
+    // TODO zeptej se ledvinky na tohle, je to takhle ok, anebo se ta cestu a ten trigger da navrhnout nejak rozumneji?
     @PostMapping(value = "/{courseCode}/{semesterCode}/kos ", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@RequestBody String code) {
-        KosCourse kosCourse = kosapiService.getCourse(code);
-        courseService.persist(KosapiEntityConverter.kosCourseToCourse(kosCourse));
-        LOG.debug("Created course from kos course {}.", kosCourse);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", kosCourse.getCode());
+    public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        courseSynchronisationService.synchroniseWithKos(courseInSemester);
+        LOG.debug("Synchronised course {}.", courseInSemester);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels", courseCode, semesterCode);
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }

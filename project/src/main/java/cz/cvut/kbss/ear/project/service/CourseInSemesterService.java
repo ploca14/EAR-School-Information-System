@@ -3,6 +3,7 @@ package cz.cvut.kbss.ear.project.service;
 import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.CourseParticipant;
@@ -136,7 +137,7 @@ public class CourseInSemesterService {
     @Transactional
     public boolean courseInstanceExists(Course course, Semester semester) {
         Objects.requireNonNull(course);
-        Objects.requireNonNull(course);
+        Objects.requireNonNull(semester);
 
         return dao.findCourseInSemester(course, semester) != null;
     }
@@ -146,5 +147,26 @@ public class CourseInSemesterService {
         Objects.requireNonNull(courseInSemester);
 
         return dao.find(courseInSemester.getId()).getParallels();
+    }
+
+    @Transactional
+    public List<CourseStudent> getStudents(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return dao.findStudents(courseInSemester);
+    }
+
+    @Transactional
+    public List<CourseTeacher> getTeachers(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return dao.findTeachers(courseInSemester);
+    }
+
+    @Transactional
+    public List<CourseParticipant> getAllParticipants(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return dao.findAllParticipants(courseInSemester);
     }
 }

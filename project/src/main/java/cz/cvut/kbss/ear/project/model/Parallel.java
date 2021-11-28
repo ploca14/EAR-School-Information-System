@@ -4,8 +4,10 @@ import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.ParallelType;
 import java.sql.Time;
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -136,6 +138,13 @@ public class Parallel extends AbstractEntity {
 
     public void setDayOfWeek(DayOfWeek dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
+    }
+
+    public List<CourseParticipant> getAllParticipants() {
+        List<CourseParticipant> participants = new ArrayList<>();
+        participants.addAll(courseStudents);
+        participants.addAll(courseTeachers);
+        return participants;
     }
 
     @Override

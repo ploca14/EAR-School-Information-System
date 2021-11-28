@@ -1,10 +1,12 @@
 package cz.cvut.kbss.ear.project.dao;
 
-import cz.cvut.kbss.ear.project.model.Course;
-import cz.cvut.kbss.ear.project.model.CourseInSemester;
-import cz.cvut.kbss.ear.project.model.Semester;
+import cz.cvut.kbss.ear.project.model.*;
+
 import javax.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
 
 @Repository
 public class CourseInSemesterDao extends BaseDao<CourseInSemester> {
@@ -20,6 +22,39 @@ public class CourseInSemesterDao extends BaseDao<CourseInSemester> {
                 .setParameter("course", course)
                 .setParameter("semester", semester)
                 .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<CourseStudent> findStudents(CourseInSemester course){
+        try {
+            return em.createNamedQuery("CourseInSemester.findStudents",
+                    CourseStudent.class)
+                    .setParameter("course", course)
+                    .getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<CourseTeacher> findTeachers(CourseInSemester course){
+        try {
+            return em.createNamedQuery("CourseInSemester.findTeachers",
+                    CourseTeacher.class)
+                    .setParameter("course", course)
+                    .getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<CourseParticipant> findAllParticipants(CourseInSemester course){
+        try {
+            return em.createNamedQuery("CourseInSemester.findAllParticipants",
+                    CourseParticipant.class)
+                    .setParameter("course", course)
+                    .getResultList();
         } catch (NoResultException e) {
             return null;
         }
