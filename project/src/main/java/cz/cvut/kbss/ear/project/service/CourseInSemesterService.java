@@ -2,8 +2,6 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
-import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
-import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.CourseParticipant;
@@ -168,5 +166,13 @@ public class CourseInSemesterService {
         Objects.requireNonNull(courseInSemester);
 
         return dao.findAllParticipants(courseInSemester);
+    }
+
+    @Transactional
+    public CourseParticipant getCourseParticipant(CourseInSemester courseInSemester, User user){
+        Objects.requireNonNull(courseInSemester);
+        Objects.requireNonNull(user);
+
+        return dao.findParticipant(courseInSemester, user);
     }
 }

@@ -12,6 +12,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "SYSTEM_USER")
 @NamedQueries({
@@ -32,7 +34,6 @@ public class User extends AbstractEntity {
     @NotNull
     @JsonIgnore
     private String password;
-
 
     private String permanentResidence;
 
@@ -130,5 +131,18 @@ public class User extends AbstractEntity {
     @JsonIgnore
     public boolean isAdmin() {
         return role.equals(Role.ADMIN);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return username.equals(user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username);
     }
 }

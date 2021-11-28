@@ -7,6 +7,8 @@ import cz.cvut.kbss.ear.project.model.CourseParticipant;
 import cz.cvut.kbss.ear.project.model.Parallel;
 import java.util.List;
 import java.util.Objects;
+
+import cz.cvut.kbss.ear.project.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,5 +63,13 @@ public class ParallelService {
     public void removeParallelFromCourse(Parallel parallel) {
         parallel.getCourseInSemester().removeParallel(parallel);
         dao.persist(parallel);
+    }
+
+    public boolean isUserEnroled(Parallel parallel, User user){
+        for (CourseParticipant parallelParticipant : parallel.getAllParticipants()){
+            if (parallelParticipant.getUser().getUsername().equals(user.getUsername())) return true;
+        }
+
+        return false;
     }
 }

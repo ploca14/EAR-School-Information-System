@@ -28,6 +28,10 @@ import javax.persistence.OneToMany;
     @NamedQuery(
             name = "CourseInSemester.findAllParticipants",
             query = "SELECT c FROM CourseParticipant c WHERE c.course = :course"
+    ),
+    @NamedQuery(
+            name = "CourseInSemester.findParticipantByUser",
+            query = "SELECT c FROM CourseParticipant c WHERE c.course = :course AND c.user = :user"
     )
 })
 public class CourseInSemester extends AbstractEntity {

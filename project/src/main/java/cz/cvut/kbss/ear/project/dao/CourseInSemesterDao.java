@@ -59,4 +59,16 @@ public class CourseInSemesterDao extends BaseDao<CourseInSemester> {
             return null;
         }
     }
+
+    public CourseParticipant findParticipant(CourseInSemester course, User user){
+        try {
+            return em.createNamedQuery("CourseInSemester.findParticipantByUser",
+                    CourseParticipant.class)
+                    .setParameter("course", course)
+                    .setParameter("user", user)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }

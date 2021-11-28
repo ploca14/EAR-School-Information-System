@@ -25,6 +25,8 @@ public class CourseSynchronisationService {
 
     private final KosapiService kosapiService;
 
+    private final ParallelService parallelService;
+
     private KosCourse kosCourse;
 
     private List<KosStudent> kosStudentsInCourse;
@@ -37,11 +39,12 @@ public class CourseSynchronisationService {
 
     private HashMap<KosParallel, List<KosTeacher>> parallelTeachers;
 
-    public CourseSynchronisationService(CourseInSemesterService courseInSemesterService,
+    public CourseSynchronisationService(CourseInSemesterService courseInSemesterService, ParallelService parallelService,
                                         KosapiService kosapiService, UserService userService) {
         this.courseInSemesterService = courseInSemesterService;
         this.kosapiService = kosapiService;
         this.userService = userService;
+        this.parallelService = parallelService;
     }
 
     @Transactional
@@ -129,12 +132,18 @@ public class CourseSynchronisationService {
             List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
 
             enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
+            // TODO unenrol old users
         }
     }
 
     private void enrolNewUsersInParallel(Parallel parallel, List<KosStudent> kosStudents, List<KosTeacher> kosTeachers){
+        List<CourseParticipant> parallelParticipants = parallel.getAllParticipants();
         for (KosStudent student : kosStudents){
             User user = createOrGetUser(student);
+            if (!parallelService.isUserEnroled(parallel, user)){
+                CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(parallel.getCourseInSemester(), user);
+                parallelService.enrollInParallel(courseParticipant, parallel);
+            }
         }
     }
 
