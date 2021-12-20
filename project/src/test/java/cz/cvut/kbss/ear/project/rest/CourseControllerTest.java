@@ -7,6 +7,7 @@ import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
+import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -128,6 +129,8 @@ public class CourseControllerTest extends BaseControllerTestRunner{
     @Test
     public void createCourseFromKos_createEAR_courseCreatedCalledOnService() throws Exception {
         final String code = "B6B36EAR";
+        final Code codeObject = new Code();
+        codeObject.setCode(code);
         KosCourse kosCourse = new KosCourse();
         kosCourse.setCode(code);
         kosCourse.setCredits("5");
@@ -135,7 +138,7 @@ public class CourseControllerTest extends BaseControllerTestRunner{
         kosCourse.setCompletion("CREDIT");
         when(kosapiService.getCourse(code)).thenReturn(kosCourse);
 
-        mockMvc.perform(post("/api/courses/kos").content(toJson(code)).contentType(MediaType.APPLICATION_JSON_VALUE))
+        mockMvc.perform(post("/api/courses/kos").content(toJson(codeObject)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isCreated());
 
         final ArgumentCaptor<Course> captor = ArgumentCaptor.forClass(Course.class);

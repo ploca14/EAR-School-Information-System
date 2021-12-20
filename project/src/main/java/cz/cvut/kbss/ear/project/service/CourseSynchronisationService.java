@@ -97,14 +97,6 @@ public class CourseSynchronisationService {
         }
     }
 
-    private void enrolTeacherInParallel(User teacher, Parallel parallel){
-
-    }
-
-    private void enrolStudentInParallel(User student, Parallel parallel){
-
-    }
-
     private List<User> convertTeachers(List<KosTeacher> kosTeachers){
         List<User> convertedUsers = new ArrayList<>();
 
@@ -140,10 +132,20 @@ public class CourseSynchronisationService {
         List<CourseParticipant> parallelParticipants = parallel.getAllParticipants();
         for (KosStudent student : kosStudents){
             User user = createOrGetUser(student);
-            if (!parallelService.isUserEnroled(parallel, user)){
-                CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(parallel.getCourseInSemester(), user);
-                parallelService.enrollInParallel(courseParticipant, parallel);
-            }
+            enrolUserInParallel(user, parallel);
+        }
+
+        for (KosTeacher teacher : kosTeachers){
+            User user = createOrGetUser(teacher);
+            enrolUserInParallel(user, parallel);
+        }
+
+    }
+
+    private void enrolUserInParallel(User user, Parallel parallel){
+        if (!parallelService.isUserEnroled(parallel, user)){
+            CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(parallel.getCourseInSemester(), user);
+            parallelService.enrollInParallel(courseParticipant, parallel);
         }
     }
 

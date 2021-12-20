@@ -51,7 +51,9 @@ public class KosapiService {
 
     public KosCourse getCourseInSemester(String courseCode, String semesterCode) {
         HttpEntity<Void> request = getHttpRequestEntity();
-        String courseUrl = "/courses/" + courseCode + "?sem=" + semesterCode;
+        String courseUrl = "/courses/" + courseCode;
+        if (semesterCode != null) courseUrl += "?sem=" + semesterCode;
+        System.out.println(courseCode);
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
 
         ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

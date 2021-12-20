@@ -6,6 +6,7 @@ import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
+import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
 import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
@@ -127,16 +128,16 @@ public class CourseController {
     }
 
     @PostMapping(value = "/kos", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createCourseFromKos(@RequestBody String code) {
-        KosCourse kosCourse = kosapiService.getCourse(code);
+    public ResponseEntity<Void> createCourseFromKos(@RequestBody Code code) {
+        KosCourse kosCourse = kosapiService.getCourse(code.getCode());
         courseService.persist(KosapiEntityConverter.kosCourseToCourse(kosCourse));
         LOG.debug("Created course from kos course {}.", kosCourse);
-        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", kosCourse.getCode());
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{code}", kosCourse.getCode()); // TODO incorrect URI
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
 
-    // TODO zeptej se ledvinky na tohle, je to takhle ok, anebo se ta cestu a ten trigger da navrhnout nejak rozumneji?
+
     @PostMapping(value = "/{courseCode}/{semesterCode}/kos ", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);

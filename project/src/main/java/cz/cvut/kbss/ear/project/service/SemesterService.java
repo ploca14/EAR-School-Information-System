@@ -40,6 +40,10 @@ public class SemesterService {
 
     @Transactional
     public Semester addNewSemester(String code, String year, SemesterType semesterType) {
+        if (code == null || year == null || semesterType == null){
+            throw new NullPointerException("Code and year and semesterType cannot be null.");
+        }
+
         if (!isCodeUnique(code)) {
             throw new SemesterException("Semester with this code already exists");
         }
