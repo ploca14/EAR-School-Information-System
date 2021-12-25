@@ -17,8 +17,11 @@ public class ParallelService {
 
     private final ParallelDao dao;
 
-    public ParallelService(ParallelDao dao) {
+    private final ClassroomService classroomService;
+
+    public ParallelService(ParallelDao dao, ClassroomService classroomService) {
         this.dao = dao;
+        this.classroomService = classroomService;
     }
 
     @Transactional
@@ -39,13 +42,17 @@ public class ParallelService {
 
     @Transactional
     public void enrollInParallel(CourseParticipant participant, Parallel parallel) {
+        participant.enrollInParallel(parallel);
+        dao.update(parallel);
+
+        /**
+         * I commented the control out, because parallels in kos do not respect the capacity.
+         * For exmaple EAR 101 parallel has capacity = 20, but 21 students
+         *
         if (parallel.getCapacity() <= parallel.getCourseStudents().size()) {
             throw new EnrolmentException(
                 String.format("The parallel %s is already full", parallel.getName()));
-        }
-
-        participant.enrollInParallel(parallel);
-        dao.update(parallel);
+        }*/
     }
 
     @Transactional

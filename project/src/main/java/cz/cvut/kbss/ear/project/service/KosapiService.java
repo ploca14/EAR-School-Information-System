@@ -18,9 +18,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Service
@@ -43,6 +46,8 @@ public class KosapiService {
         this.tokenManager = tokenManager;
         this.restTemplate = restTemplate;
         this.token = tokenManager.getAccessToken();
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
 
     public KosCourse getCourse(String courseCode){
@@ -180,6 +185,7 @@ public class KosapiService {
 
     public List<KosTeacher> getTeachersInParallel(KosParallel kosParallel){
         ArrayList<KosTeacher> kosTeachers = new ArrayList<>();
+        if (kosParallel.getTeacherlinks() == null) return new ArrayList<>();
         for (TeacherLink teacherLink : kosParallel.getTeacherlinks()){
             try {
                 kosTeachers.add(getKosTeacherFromTeacherLink(teacherLink));

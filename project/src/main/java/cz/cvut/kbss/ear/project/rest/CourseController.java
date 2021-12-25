@@ -6,6 +6,7 @@ import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
+import cz.cvut.kbss.ear.project.rest.dto.CourseInSemesterDTO;
 import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
@@ -96,8 +97,9 @@ public class CourseController {
     }
 
     @GetMapping(value = "/{code}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public CourseInSemester getCourseInSemester(@PathVariable String code, @PathVariable String semesterCode) {
-        return courseInSemesterService.findByCode(code, semesterCode);
+    public CourseInSemesterDTO getCourseInSemester(@PathVariable String code, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(code, semesterCode);
+        return new CourseInSemesterDTO(courseInSemester);
     }
 
     @PostMapping(value = "/{courseCode}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,9 +138,7 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-
-
-    @PostMapping(value = "/{courseCode}/{semesterCode}/kos ", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{courseCode}/{semesterCode}/kos")
     public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         courseSynchronisationService.synchroniseWithKos(courseInSemester);

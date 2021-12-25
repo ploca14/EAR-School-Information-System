@@ -1,5 +1,7 @@
 package cz.cvut.kbss.ear.project.model;
 
+import org.hibernate.annotations.DiscriminatorOptions;
+
 import java.util.Collection;
 import java.util.HashSet;
 import javax.persistence.CascadeType;
@@ -22,6 +24,7 @@ import javax.persistence.NamedQuery;
     @NamedQuery(name = "CourseParticipant.findByUser", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user"),
     @NamedQuery(name = "CourseParticipant.findByUserAndCourse", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user AND :course = cp.course")
 })
+@DiscriminatorOptions(force = true)
 public abstract class CourseParticipant extends AbstractEntity {
 
     @ManyToOne

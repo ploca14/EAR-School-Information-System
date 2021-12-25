@@ -1,10 +1,7 @@
 package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.kosapi.entities.*;
-import cz.cvut.kbss.ear.project.model.CourseInSemester;
-import cz.cvut.kbss.ear.project.model.CourseParticipant;
-import cz.cvut.kbss.ear.project.model.Parallel;
-import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.model.*;
 import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Synchronises parallels and parallels in a course based on KOS.
@@ -27,43 +25,49 @@ public class CourseSynchronisationService {
 
     private final ParallelService parallelService;
 
+    private final ClassroomService classroomService;
+
     private KosCourse kosCourse;
 
-    private List<KosStudent> kosStudentsInCourse;
+    private List<KosStudent> kosStudentsInCourse = new ArrayList<>();
 
-    private List<KosTeacher> kosTeachersInCourse;
+    private List<KosTeacher> kosTeachersInCourse = new ArrayList<>();
 
-    private List<KosParallel> kosParallels;
+    private List<KosParallel> kosParallels = new ArrayList<>();
 
-    private HashMap<KosParallel, List<KosStudent>> parallelStudents;
+    private HashMap<KosParallel, List<KosStudent>> parallelStudents = new HashMap<>();
 
-    private HashMap<KosParallel, List<KosTeacher>> parallelTeachers;
+    private HashMap<KosParallel, List<KosTeacher>> parallelTeachers = new HashMap<>();
+
+    private CourseInSemester courseInSemester;
 
     public CourseSynchronisationService(CourseInSemesterService courseInSemesterService, ParallelService parallelService,
-                                        KosapiService kosapiService, UserService userService) {
+                                        KosapiService kosapiService, UserService userService, ClassroomService classroomService) {
         this.courseInSemesterService = courseInSemesterService;
         this.kosapiService = kosapiService;
         this.userService = userService;
         this.parallelService = parallelService;
+        this.classroomService = classroomService;
     }
 
     @Transactional
     public void synchroniseWithKos(CourseInSemester courseInSemester){
+        this.courseInSemester = courseInSemester;
         // TODO mozna pridat flag do modelu, jestli byl kurz importovan z KOSu
-        loadDataFromKosapi(courseInSemester);
-        synchroniseCourseEnrolments(courseInSemester);
-        synchroniseParallelEnrolments(courseInSemester);
+        loadDataFromKosapi();
+        synchroniseCourseEnrolments();
+        synchroniseParallelEnrolments();
     }
 
-    private void synchroniseCourseEnrolments(CourseInSemester courseInSemester){
+    private void synchroniseCourseEnrolments(){
         List<User> students = convertStudents(kosStudentsInCourse);
         List<User> teachers = convertTeachers(kosTeachersInCourse);
         enrolNewUsersInCourse(students, teachers, courseInSemester);
 
-        List<User> allParticipantsFromKos = students;
-        allParticipantsFromKos.addAll(teachers);
+        //List<User> allParticipantsFromKos = students;
+        //allParticipantsFromKos.addAll(teachers);
 
-        unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
+        //TODO unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
     }
 
     private void enrolNewUsersInCourse(List<User> students, List<User> teachers, CourseInSemester courseInSemester){
@@ -117,9 +121,9 @@ public class CourseSynchronisationService {
         return convertedUsers;
     }
 
-    private void synchroniseParallelEnrolments(CourseInSemester courseInSemester){
+    private void synchroniseParallelEnrolments(){
         for (KosParallel kosParallel : kosParallels){
-            Parallel parallel = KosapiEntityConverter.kosParallelToParallel(kosParallel);
+            Parallel parallel = createOrGetParallel(kosParallel);
             List<KosStudent> studentsInParallel = parallelStudents.get(kosParallel);
             List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
 
@@ -158,7 +162,24 @@ public class CourseSynchronisationService {
         return userService.findByUsername(user.getUsername());
     }
 
-    private void loadDataFromKosapi(CourseInSemester courseInSemester){
+    private Parallel createOrGetParallel(KosParallel kosParallel){
+        Parallel parallel = KosapiEntityConverter.kosParallelToParallel(kosParallel);
+        for (Parallel existingParallel : courseInSemester.getParallels()) {
+            if (existingParallel.getName().equals(parallel.getName())) return existingParallel;
+        }
+        Classroom classroom = parallel.getClassroom();
+        if (!classroomService.exists(classroom.getName())){
+            classroomService.persist(classroom);
+        }
+        else{
+            parallel.setClassroom(classroomService.findByName(classroom.getName()));
+        }
+
+        parallelService.addParallelToCourse(parallel, courseInSemester);
+        return parallel;
+    }
+
+    private void loadDataFromKosapi(){
         kosCourse = kosapiService.getCourseInSemester(courseInSemester.getCourse().getCode(),
                 courseInSemester.getSemester().getCode());
         kosStudentsInCourse = kosapiService.getStudentsInCourse(kosCourse);
