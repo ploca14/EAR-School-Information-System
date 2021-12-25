@@ -1,9 +1,6 @@
 package cz.cvut.kbss.ear.project.rest.dto;
 
-import cz.cvut.kbss.ear.project.model.Course;
-import cz.cvut.kbss.ear.project.model.CourseInSemester;
-import cz.cvut.kbss.ear.project.model.CourseTeacher;
-import cz.cvut.kbss.ear.project.model.Semester;
+import cz.cvut.kbss.ear.project.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +12,7 @@ public class CourseInSemesterDTO {
 
     private Semester semester;
 
-    private List<String> teachers;
+    private List<User> teachers;
 
     public CourseInSemesterDTO() {
     }
@@ -23,11 +20,33 @@ public class CourseInSemesterDTO {
     public CourseInSemesterDTO(CourseInSemester courseInSemester) {
         course = courseInSemester.getCourse();
         semester = courseInSemester.getSemester();
-        for (CourseTeacher u : courseInSemester.getTeachers()){
-            System.out.println(u);
-        }
-        teachers = courseInSemester.getTeachers().stream().map(e -> (e.getUser().getUsername())).collect(Collectors.toList());
+        teachers = courseInSemester.getTeachers().stream().map(CourseParticipant::getUser).collect(Collectors.toList());
     }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Semester getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Semester semester) {
+        this.semester = semester;
+    }
+
+    public List<User> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(List<User> teachers) {
+        this.teachers = teachers;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -49,29 +68,5 @@ public class CourseInSemesterDTO {
                 ", semester=" + semester +
                 ", teachers=" + teachers +
                 '}';
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
-    }
-
-    public void setSemester(Semester semester) {
-        this.semester = semester;
-    }
-
-    public void setTeachers(List<String> teachers) {
-        this.teachers = teachers;
-    }
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public Semester getSemester() {
-        return semester;
-    }
-
-    public List<String> getTeachers() {
-        return teachers;
     }
 }

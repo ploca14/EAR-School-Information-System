@@ -32,7 +32,9 @@ import javax.persistence.OneToMany;
     @NamedQuery(
             name = "CourseInSemester.findParticipantByUser",
             query = "SELECT c FROM CourseParticipant c WHERE c.course = :course AND c.user = :user"
-    )
+    ),
+    @NamedQuery(name = "CourseInSemester.findUsersCoursesInSemester", query = "SELECT cis FROM CourseInSemester cis" +
+            " JOIN CourseParticipant cp ON cp.course = cis WHERE cp.user = :user AND cis.semester = :semester")
 })
 public class CourseInSemester extends AbstractEntity {
 

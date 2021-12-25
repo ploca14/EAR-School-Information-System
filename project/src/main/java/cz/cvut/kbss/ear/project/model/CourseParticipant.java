@@ -4,27 +4,16 @@ import org.hibernate.annotations.DiscriminatorOptions;
 
 import java.util.Collection;
 import java.util.HashSet;
-import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "PARTICIPANT_TYPE")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @NamedQueries({
     @NamedQuery(name = "CourseStudent.findByUser", query = "SELECT cs from CourseStudent cs WHERE :user = cs.user"),
     @NamedQuery(name = "CourseTeacher.findByUser", query = "SELECT ct from CourseTeacher ct WHERE :user = ct.user"),
     @NamedQuery(name = "CourseParticipant.findByUser", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user"),
     @NamedQuery(name = "CourseParticipant.findByUserAndCourse", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user AND :course = cp.course")
 })
-@DiscriminatorOptions(force = true)
 public abstract class CourseParticipant extends AbstractEntity {
 
     @ManyToOne

@@ -5,10 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import cz.cvut.kbss.ear.project.Application;
 import cz.cvut.kbss.ear.project.config.KosApiConfig;
-import cz.cvut.kbss.ear.project.config.SecurityConfig;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.model.Classroom;
-import cz.cvut.kbss.ear.project.rest.CourseController;
+import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
 import cz.cvut.kbss.ear.project.service.KosapiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -29,7 +29,7 @@ public class CourseInSemesterService {
 
     private final SemesterDao semesterDao;
 
-    private final CourseInSemesterDao dao;
+    private final CourseInSemesterDao courseInSemesterDao;
 
     private final KosapiService kosapiService;
 
@@ -47,28 +47,28 @@ public class CourseInSemesterService {
         this.courseParticipantDao = courseParticipantDao;
         this.courseDao = courseDao;
         this.semesterDao = semesterDao;
-        this.dao = courseInSemesterDao;
+        this.courseInSemesterDao = courseInSemesterDao;
         this.kosapiService = kosapiService;
     }
 
     @Transactional
     public List<CourseInSemester> findAll() {
-        return dao.findAll();
+        return courseInSemesterDao.findAll();
     }
 
     @Transactional
     public CourseInSemester find(Integer id) {
-        return dao.find(id);
+        return courseInSemesterDao.find(id);
     }
 
     @Transactional
     public CourseInSemester findByCode(String course_code, String semester_code){
-        return dao.findCourseInSemester(courseDao.findByCode(course_code), semesterDao.findByCode(semester_code));
+        return courseInSemesterDao.findCourseInSemester(courseDao.findByCode(course_code), semesterDao.findByCode(semester_code));
     }
 
     @Transactional
     public void persist(CourseInSemester courseInSemester) {
-        dao.persist(courseInSemester);
+        courseInSemesterDao.persist(courseInSemester);
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class CourseInSemesterService {
         CourseInSemester courseInSemester = new CourseInSemester();
         courseInSemester.setCourse(course);
         courseInSemester.setSemester(semester);
-        dao.persist(courseInSemester);
+        courseInSemesterDao.persist(courseInSemester);
 
         return courseInSemester;
     }
@@ -137,35 +137,35 @@ public class CourseInSemesterService {
         Objects.requireNonNull(course);
         Objects.requireNonNull(semester);
 
-        return dao.findCourseInSemester(course, semester) != null;
+        return courseInSemesterDao.findCourseInSemester(course, semester) != null;
     }
 
     @Transactional
     public Collection<Parallel> getParallels(CourseInSemester courseInSemester) {
         Objects.requireNonNull(courseInSemester);
 
-        return dao.find(courseInSemester.getId()).getParallels();
+        return courseInSemesterDao.find(courseInSemester.getId()).getParallels();
     }
 
     @Transactional
     public List<CourseStudent> getStudents(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
-        return dao.findStudents(courseInSemester);
+        return courseInSemesterDao.findStudents(courseInSemester);
     }
 
     @Transactional
     public List<CourseTeacher> getTeachers(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
-        return dao.findTeachers(courseInSemester);
+        return courseInSemesterDao.findTeachers(courseInSemester);
     }
 
     @Transactional
     public List<CourseParticipant> getAllParticipants(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
-        return dao.findAllParticipants(courseInSemester);
+        return courseInSemesterDao.findAllParticipants(courseInSemester);
     }
 
     @Transactional
@@ -173,6 +173,13 @@ public class CourseInSemesterService {
         Objects.requireNonNull(courseInSemester);
         Objects.requireNonNull(user);
 
-        return dao.findParticipant(courseInSemester, user);
+        return courseInSemesterDao.findParticipant(courseInSemester, user);
+    }
+
+    public List<CourseInSemester> getAllUsersCoursesInSemester(Semester semester, User user){
+        Objects.requireNonNull(semester);
+        Objects.requireNonNull(user);
+
+        return courseInSemesterDao.findUsersCourses(semester, user);
     }
 }

@@ -1,12 +1,11 @@
-package cz.cvut.kbss.ear.project.rest;
+package cz.cvut.kbss.ear.project.rest.controllers;
 
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
-import cz.cvut.kbss.ear.project.model.Course;
-import cz.cvut.kbss.ear.project.model.CourseInSemester;
-import cz.cvut.kbss.ear.project.model.Semester;
+import cz.cvut.kbss.ear.project.model.*;
 import cz.cvut.kbss.ear.project.rest.dto.CourseInSemesterDTO;
+import cz.cvut.kbss.ear.project.rest.dto.ParallelDTO;
 import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
@@ -20,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Resources
@@ -34,21 +34,21 @@ import java.util.List;
  * - POST: DONE
  *    - vytvor instanci kurzu v semestru na zaklade course DONE
  *
- * - /api/courses/code/semesterCode/kos
- * - PUT:
- *     - import veci z KOSu
- * /api/courses/code/semesterCode/participants
- * /api/courses/code/semesterCode/participants/students
+ * - /api/courses/code/semesterCode/kos DONE
+ * - POST:
+ *     - import veci z KOSu DONE
+ * /api/courses/code/semesterCode/participants DONE
+ * /api/courses/code/semesterCode/participants/students DONE
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/code/semesterCode/participants/teachers
+ * /api/courses/code/semesterCode/participants/teachers DONE
  * - POST:
  *      - enrol
  * - DELETE:
  *      - unenrol
- * /api/courses/code/semesterCode/parallels
+ * /api/courses/code/semesterCode/parallels DONE
  * - POST:
  *      - enrol
  *      - create parallel
@@ -94,6 +94,46 @@ public class CourseController {
     @GetMapping(value = "/{code}",produces = MediaType.APPLICATION_JSON_VALUE)
     public Course getCourseByCode(@PathVariable String code) {
         return courseService.findByCode(code);
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/participants",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getUsersInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        List<User> usersInCourse = courseInSemesterService.getAllParticipants(courseInSemester)
+                .stream()
+                .map((CourseParticipant::getUser))
+                .collect(Collectors.toList());
+        return usersInCourse;
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/participants/students",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getStudentsInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        List<User> usersInCourse = courseInSemesterService.getStudents(courseInSemester)
+                .stream()
+                .map((CourseParticipant::getUser))
+                .collect(Collectors.toList());
+        return usersInCourse;
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/participants/teachers",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getTeachersIncourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        List<User> usersInCourse = courseInSemesterService.getTeachers(courseInSemester)
+                .stream()
+                .map((CourseParticipant::getUser))
+                .collect(Collectors.toList());
+        return usersInCourse;
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/parallels", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ParallelDTO> getParallelInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        List<ParallelDTO> parallelsInCourse = courseInSemesterService.getParallels(courseInSemester)
+                .stream()
+                .map(ParallelDTO::new)
+                .collect(Collectors.toList());
+        return parallelsInCourse;
     }
 
     @GetMapping(value = "/{code}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)

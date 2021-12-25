@@ -1,9 +1,16 @@
-package cz.cvut.kbss.ear.project.rest;
+package cz.cvut.kbss.ear.project.rest.controllers;
 
+import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.rest.dto.TimetableSlotDTO;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
+import cz.cvut.kbss.ear.project.service.ParallelService;
+import cz.cvut.kbss.ear.project.service.SemesterService;
 import cz.cvut.kbss.ear.project.service.UserService;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,9 +30,15 @@ public class UserController {
 
     private final UserService userService;
 
+    private final SemesterService semesterService;
+
+    private final ParallelService parallelService;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SemesterService semesterService, ParallelService parallelService) {
         this.userService = userService;
+        this.semesterService = semesterService;
+        this.parallelService = parallelService;
     }
 
     /**
@@ -59,7 +68,7 @@ public class UserController {
     /**
      * Resources
      *
-     * api/users/id/timetable
+     * api/users/username/semester/parallels
      * api/users/id/roles
      * - POST:
      *      - priradit roli
@@ -67,4 +76,14 @@ public class UserController {
      *      - odebrat roli
      *
      */
+
+    @GetMapping(value = "/{username}/{semesterCode}/timetable", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<TimetableSlotDTO> getUsersParallels(@PathVariable String username, @PathVariable String semesterCode) {
+        User user = userService.findByUsername(username);
+        Semester semester = semesterService.findByCode(semesterCode);
+        return parallelService.getUsersParallelsInSemester(user, semester)
+                .stream()
+                .map(TimetableSlotDTO::new)
+                .collect(Collectors.toList());
+    }
 }

@@ -7,6 +7,7 @@ import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
+import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
 import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.service.*;
 import org.junit.jupiter.api.BeforeEach;

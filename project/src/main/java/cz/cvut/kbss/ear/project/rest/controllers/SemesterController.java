@@ -1,6 +1,5 @@
-package cz.cvut.kbss.ear.project.rest;
+package cz.cvut.kbss.ear.project.rest.controllers;
 
-import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.SemesterService;
