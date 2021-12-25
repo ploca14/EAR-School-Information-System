@@ -1,5 +1,6 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.SemesterService;
@@ -41,7 +42,11 @@ public class SemesterController {
 
     @GetMapping(value = "/{semesterCode}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Semester getSemester(@PathVariable String semesterCode){
-        return semesterService.findByCode(semesterCode);
+        final Semester semester = semesterService.findByCode(semesterCode);
+        if (semester == null){
+            throw NotFoundException.create("Semester", semesterCode);
+        }
+        return semester;
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -54,7 +59,11 @@ public class SemesterController {
 
     @PostMapping(value = "/{semesterCode}/makecurrent", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> makeCurrent(@PathVariable String semesterCode) {
-        semesterService.makeSemesterCurrent(semesterService.findByCode(semesterCode));
+        Semester semester = semesterService.findByCode(semesterCode);
+        if (semester == null){
+            throw NotFoundException.create("Semester", semesterCode);
+        }
+        semesterService.makeSemesterCurrent(semester);
         LOG.debug("Made semester with code: {}, current.", semesterCode);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri(""); // Todo wrong uri
         return new ResponseEntity<>(headers, HttpStatus.CREATED);

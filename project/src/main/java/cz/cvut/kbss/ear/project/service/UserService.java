@@ -38,7 +38,7 @@ public class UserService {
     }
 
     @Transactional
-    public void addRoleToUser(User user, Role role) {
+    public void setUserRole(User user, Role role) {
         user.setRole(role);
         dao.update(user);
     }

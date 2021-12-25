@@ -1,6 +1,7 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.*;
@@ -93,52 +94,67 @@ public class CourseController {
 
     @GetMapping(value = "/{code}",produces = MediaType.APPLICATION_JSON_VALUE)
     public Course getCourseByCode(@PathVariable String code) {
-        return courseService.findByCode(code);
+        Course course = courseService.findByCode(code);
+        if (course == null){
+            throw NotFoundException.create("Course", code);
+        }
+        return course;
     }
 
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getUsersInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
-        List<User> usersInCourse = courseInSemesterService.getAllParticipants(courseInSemester)
+        if (courseInSemester == null){
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        return courseInSemesterService.getAllParticipants(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
-        return usersInCourse;
     }
 
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants/students",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getStudentsInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
-        List<User> usersInCourse = courseInSemesterService.getStudents(courseInSemester)
+        if (courseInSemester == null){
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        return courseInSemesterService.getStudents(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
-        return usersInCourse;
     }
 
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants/teachers",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getTeachersIncourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
-        List<User> usersInCourse = courseInSemesterService.getTeachers(courseInSemester)
+        if (courseInSemester == null){
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        return courseInSemesterService.getTeachers(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
-        return usersInCourse;
     }
 
     @GetMapping(value = "/{courseCode}/{semesterCode}/parallels", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ParallelDTO> getParallelInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
+    public List<ParallelDTO> getParallelsInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
-        List<ParallelDTO> parallelsInCourse = courseInSemesterService.getParallels(courseInSemester)
+        if (courseInSemester == null){
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        return courseInSemesterService.getParallels(courseInSemester)
                 .stream()
                 .map(ParallelDTO::new)
                 .collect(Collectors.toList());
-        return parallelsInCourse;
     }
 
     @GetMapping(value = "/{code}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public CourseInSemesterDTO getCourseInSemester(@PathVariable String code, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(code, semesterCode);
+        if (courseInSemester == null){
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + code + ", SemesterCode: " + semesterCode);
+        }
         return new CourseInSemesterDTO(courseInSemester);
     }
 
@@ -146,13 +162,13 @@ public class CourseController {
     public ResponseEntity<Void> createCourseInSemester(@PathVariable String courseCode, @PathVariable String semesterCode) {
         Course course = courseService.findByCode(courseCode);
         if (course == null){
-            throw new CourseException("Course with code " + courseCode + " does not exist, therefore an instance in a semester" +
+            throw new NotFoundException("Course with code " + courseCode + " does not exist, therefore an instance in a semester" +
                     "cannot be created. Create the course first by POST on api/courses.");
         }
         Semester semester = semesterService.findByCode(semesterCode);
 
         if (semester == null){
-            throw new SemesterException("Semester with a given code does not exist.");
+            throw new NotFoundException("Semester with a given code does not exist.");
         }
 
         courseInSemesterService.addCourseToSemester(course, semester);
@@ -181,6 +197,9 @@ public class CourseController {
     @PostMapping(value = "/{courseCode}/{semesterCode}/kos")
     public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@PathVariable String courseCode, @PathVariable String semesterCode) {
         CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
         courseSynchronisationService.synchroniseWithKos(courseInSemester);
         LOG.debug("Synchronised course {}.", courseInSemester);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels", courseCode, semesterCode);

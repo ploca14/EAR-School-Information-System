@@ -1,7 +1,9 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.model.enums.Role;
 import cz.cvut.kbss.ear.project.rest.dto.TimetableSlotDTO;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.ParallelService;
@@ -69,11 +71,9 @@ public class UserController {
      * Resources
      *
      * api/users/username/semester/parallels
-     * api/users/id/roles
-     * - POST:
-     *      - priradit roli
-     * - DELETE:
-     *      - odebrat roli
+     * api/users/username/role
+     * - PUT:
+     *      - urcit roli
      *
      */
 
@@ -81,9 +81,20 @@ public class UserController {
     public List<TimetableSlotDTO> getUsersParallels(@PathVariable String username, @PathVariable String semesterCode) {
         User user = userService.findByUsername(username);
         Semester semester = semesterService.findByCode(semesterCode);
+        if (semester == null) throw NotFoundException.create("Semester", semesterCode);
+        if (user == null) throw NotFoundException.create("User", username);
         return parallelService.getUsersParallelsInSemester(user, semester)
                 .stream()
                 .map(TimetableSlotDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @PutMapping(value = "/{username}/role", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void setRole(@PathVariable String username, @RequestBody Role role) {
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            throw NotFoundException.create("User", username);
+        }
+        userService.setUserRole(user, role);
     }
 }

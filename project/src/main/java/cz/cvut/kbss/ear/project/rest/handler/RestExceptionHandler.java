@@ -1,6 +1,8 @@
 package cz.cvut.kbss.ear.project.rest.handler;
 
-
+import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
+import cz.cvut.kbss.ear.project.exception.PersistenceException;
 import cz.cvut.kbss.ear.project.exception.SemesterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * PARTS COPIED FROM THE ESHOP ASSIGNMENT
  */
+@EnableWebMvc
 @ControllerAdvice
 public class RestExceptionHandler {
 
@@ -33,9 +38,37 @@ public class RestExceptionHandler {
         return new ErrorInfo(e.getMessage(), request.getRequestURI());
     }
 
+    private static ErrorInfo errorInfo(HttpServletRequest request, Throwable e, String customMessage) {
+        return new ErrorInfo(customMessage + e.getMessage(), request.getRequestURI());
+    }
+
     @ExceptionHandler(SemesterException.class)
     public ResponseEntity<ErrorInfo> semesterException(HttpServletRequest request, SemesterException e) {
         logException(e);
-        return new ResponseEntity<>(errorInfo(request, e.getCause()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(CourseException.class)
+    public ResponseEntity<ErrorInfo> courseException(HttpServletRequest request, CourseException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(PersistenceException.class)
+    public ResponseEntity<ErrorInfo> persistenceException(HttpServletRequest request, PersistenceException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorInfo> resourceNotFound(HttpServletRequest request, NotFoundException e) {
+        // Not necessary to log NotFoundException, they may be quite frequent and do not represent an issue with the application
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ErrorInfo> kosApiError(HttpServletRequest request, NotFoundException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e, "KosAPI error: "), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
