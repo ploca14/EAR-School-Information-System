@@ -9,4 +9,5 @@ public class ParallelDao extends BaseDao<Parallel> {
     public ParallelDao() {
         super(Parallel.class);
     }
+
 }

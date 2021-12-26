@@ -1,5 +1,6 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
+import cz.cvut.kbss.ear.project.exception.InvalidInputDataException;
 import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
@@ -11,8 +12,10 @@ import cz.cvut.kbss.ear.project.service.SemesterService;
 import cz.cvut.kbss.ear.project.service.UserService;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +79,6 @@ public class UserController {
      *      - urcit roli
      *
      */
-
     @GetMapping(value = "/{username}/{semesterCode}/timetable", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TimetableSlotDTO> getUsersParallels(@PathVariable String username, @PathVariable String semesterCode) {
         User user = userService.findByUsername(username);
@@ -90,11 +92,20 @@ public class UserController {
     }
 
     @PutMapping(value = "/{username}/role", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void setRole(@PathVariable String username, @RequestBody Role role) {
+    public void setRole(@PathVariable String username, @RequestBody Map<String, Object> inputData) {
         User user = userService.findByUsername(username);
         if (user == null) {
             throw NotFoundException.create("User", username);
         }
-        userService.setUserRole(user, role);
+
+        JSONObject jsonObj = new JSONObject(inputData); // I am doing it this way, because i was unable to deserialize enum Role directly
+        String rolename = jsonObj.getAsString("role");
+        try{
+            Role role = Role.valueOf(rolename);
+            userService.setUserRole(user, role);
+        }
+        catch(IllegalArgumentException e){
+            throw new InvalidInputDataException("Invalid input for role.");
+        }
     }
 }

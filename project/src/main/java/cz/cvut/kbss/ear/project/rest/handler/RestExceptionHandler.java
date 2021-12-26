@@ -1,9 +1,6 @@
 package cz.cvut.kbss.ear.project.rest.handler;
 
-import cz.cvut.kbss.ear.project.exception.CourseException;
-import cz.cvut.kbss.ear.project.exception.NotFoundException;
-import cz.cvut.kbss.ear.project.exception.PersistenceException;
-import cz.cvut.kbss.ear.project.exception.SemesterException;
+import cz.cvut.kbss.ear.project.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -67,8 +64,14 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<ErrorInfo> kosApiError(HttpServletRequest request, NotFoundException e) {
+    public ResponseEntity<ErrorInfo> kosApiError(HttpServletRequest request, HttpClientErrorException e) {
         logException(e);
         return new ResponseEntity<>(errorInfo(request, e, "KosAPI error: "), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InvalidInputDataException.class)
+    public ResponseEntity<ErrorInfo> invalidInputException(HttpServletRequest request, InvalidInputDataException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
