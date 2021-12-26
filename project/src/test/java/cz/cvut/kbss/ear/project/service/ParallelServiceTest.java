@@ -24,7 +24,9 @@ import java.util.Collection;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +129,10 @@ public class ParallelServiceTest {
     @Mock
     Collection<CourseStudent> courseStudents;
 
+    // I disabled this test and commented out the part of code preventing user to be enrolled in a full parallel,
+    // because in KOS are parallels, which have more members than their maximum capacity, so the synchronisation would break.
     @Test
+    @Ignore
     public void enrollInParallel_enrollStudentToFullParallel_throwsEnrollmentException() {
         CourseStudent courseStudent = new CourseStudent();
         courseStudent.setCourse(courseInSemester);

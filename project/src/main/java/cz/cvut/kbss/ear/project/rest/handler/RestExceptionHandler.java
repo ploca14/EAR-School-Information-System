@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
  *
  * PARTS COPIED FROM THE ESHOP ASSIGNMENT
  */
-@EnableWebMvc
 @ControllerAdvice
 public class RestExceptionHandler {
 
