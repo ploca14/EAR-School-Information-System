@@ -10,6 +10,7 @@ import cz.cvut.kbss.ear.project.dao.CourseStudentDao;
 import cz.cvut.kbss.ear.project.dao.CourseTeacherDao;
 import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Parallel;
@@ -23,6 +24,9 @@ import java.time.DayOfWeek;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -63,7 +67,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void createNewCourseInSemester_createTwoInstancesInOneSemester_exceptionThrown() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
 
         courseInSemesterService.addCourseToSemester(course, semester);
@@ -73,7 +77,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void enrolTeacherInCourse_createCourseTeacher_courseTeacherCreated() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -90,7 +94,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     public void enrolStudentInCourse_createCourseStudent_courseStudentCreated() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -105,7 +109,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void unenrolFromCourse_unenrollCourseStudent_courseStudentUnenrolled() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -119,7 +123,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void unenrolFromCourse_unenrollCourseTeacher_courseTeacherUnenrolled() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -135,7 +139,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void isUserEnroled_enrolledTeacher_true() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         User user = Generator.generateUser();
         userService.persist(user);
@@ -149,7 +153,7 @@ public class CourseInSemesterServiceTest {
 
     @Test
     void getParallels_courseWithParallels_returnsParallels() {
-        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.KZ);
+        Course course = courseService.createNewCourse("EAR", 5, "B36EAR", CourseCompletionType.CLFD_CREDIT);
         Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
         CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
             course, semester);
@@ -159,11 +163,28 @@ public class CourseInSemesterServiceTest {
         parallel.setEndTime(new Time(17, 45, 0));
         parallel.setDayOfWeek(DayOfWeek.WEDNESDAY);
         parallel.setCapacity(20);
-        parallel.setParallelType(ParallelType.EXCERCISE);
+        parallel.setParallelType(ParallelType.TUTORIAL);
         em.persist(parallel);
         courseInSemester.addParallel(parallel);
         em.merge(courseInSemester);
 
         assertEquals(List.of(parallel), courseInSemesterService.getParallels(courseInSemester));
+    }
+
+    @Test
+    void getAllUsersCoursesInSemester_addEARB211AndEnrolUser_EARB211AmongUsersCourses() {
+        Course course = courseService.createNewCourse("EAR", 5, "B6B36EAR", CourseCompletionType.CLFD_CREDIT);
+        Semester semester = semesterService.addNewSemester("B211", "2021", SemesterType.WINTER);
+        CourseInSemester courseInSemester = courseInSemesterService.addCourseToSemester(
+                course,
+                semester
+        );
+        User user = Generator.generateUser();
+        userService.persist(user);
+        courseInSemesterService.enrolAsStudentInCourse(user, courseInSemester);
+
+        List<CourseInSemester> result = courseInSemesterService.getAllUsersCoursesInSemester(semester, user);
+
+        Assertions.assertEquals(true, result.contains(courseInSemester));
     }
 }

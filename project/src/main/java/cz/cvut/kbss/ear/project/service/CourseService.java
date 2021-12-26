@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.CourseDao;
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import java.util.List;
@@ -19,6 +20,7 @@ public class CourseService {
     }
 
     @Transactional
+    @Deprecated // Dont use, use persist instead, this does not contain all course attributes
     public Course createNewCourse(
         String name, Integer credits, String code,
         CourseCompletionType completionType
@@ -48,8 +50,16 @@ public class CourseService {
     }
 
     @Transactional
+    public Course findByCode(String code){
+        return dao.findByCode(code);
+    }
+
+    @Transactional
     public void persist(Course course) {
         Objects.requireNonNull(course);
+        if (dao.findByCode(course.getCode()) != null) {
+            throw new CourseException("Course with this code already exists");
+        }
         dao.persist(course);
     }
 }

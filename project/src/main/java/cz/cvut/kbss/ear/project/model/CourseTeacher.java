@@ -1,5 +1,6 @@
 package cz.cvut.kbss.ear.project.model;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity

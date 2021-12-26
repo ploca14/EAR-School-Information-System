@@ -1,9 +1,6 @@
 package cz.cvut.kbss.ear.project.service;
 
-import cz.cvut.kbss.ear.project.dao.CourseInSemesterDao;
-import cz.cvut.kbss.ear.project.dao.CourseParticipantDao;
-import cz.cvut.kbss.ear.project.dao.CourseStudentDao;
-import cz.cvut.kbss.ear.project.dao.CourseTeacherDao;
+import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
@@ -28,33 +25,50 @@ public class CourseInSemesterService {
 
     private final CourseParticipantDao courseParticipantDao;
 
-    private final CourseInSemesterDao dao;
+    private final CourseDao courseDao;
+
+    private final SemesterDao semesterDao;
+
+    private final CourseInSemesterDao courseInSemesterDao;
+
+    private final KosapiService kosapiService;
 
     public CourseInSemesterService(
         CourseTeacherDao courseTeacherDao,
         CourseStudentDao courseStudentDao,
         CourseParticipantDao courseParticipantDao,
-        CourseInSemesterDao courseInSemesterDao
+        CourseInSemesterDao courseInSemesterDao,
+        CourseDao courseDao,
+        SemesterDao semesterDao,
+        KosapiService kosapiService
     ) {
         this.courseTeacherDao = courseTeacherDao;
         this.courseStudentDao = courseStudentDao;
         this.courseParticipantDao = courseParticipantDao;
-        this.dao = courseInSemesterDao;
+        this.courseDao = courseDao;
+        this.semesterDao = semesterDao;
+        this.courseInSemesterDao = courseInSemesterDao;
+        this.kosapiService = kosapiService;
     }
 
     @Transactional
     public List<CourseInSemester> findAll() {
-        return dao.findAll();
+        return courseInSemesterDao.findAll();
     }
 
     @Transactional
     public CourseInSemester find(Integer id) {
-        return dao.find(id);
+        return courseInSemesterDao.find(id);
+    }
+
+    @Transactional
+    public CourseInSemester findByCode(String course_code, String semester_code){
+        return courseInSemesterDao.findCourseInSemester(courseDao.findByCode(course_code), semesterDao.findByCode(semester_code));
     }
 
     @Transactional
     public void persist(CourseInSemester courseInSemester) {
-        dao.persist(courseInSemester);
+        courseInSemesterDao.persist(courseInSemester);
     }
 
     @Transactional
@@ -70,7 +84,7 @@ public class CourseInSemesterService {
         CourseInSemester courseInSemester = new CourseInSemester();
         courseInSemester.setCourse(course);
         courseInSemester.setSemester(semester);
-        dao.persist(courseInSemester);
+        courseInSemesterDao.persist(courseInSemester);
 
         return courseInSemester;
     }
@@ -121,15 +135,51 @@ public class CourseInSemesterService {
     @Transactional
     public boolean courseInstanceExists(Course course, Semester semester) {
         Objects.requireNonNull(course);
-        Objects.requireNonNull(course);
+        Objects.requireNonNull(semester);
 
-        return dao.findCourseInSemester(course, semester) != null;
+        return courseInSemesterDao.findCourseInSemester(course, semester) != null;
     }
 
     @Transactional
     public Collection<Parallel> getParallels(CourseInSemester courseInSemester) {
         Objects.requireNonNull(courseInSemester);
 
-        return dao.find(courseInSemester.getId()).getParallels();
+        return courseInSemesterDao.find(courseInSemester.getId()).getParallels();
+    }
+
+    @Transactional
+    public List<CourseStudent> getStudents(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return courseInSemesterDao.findStudents(courseInSemester);
+    }
+
+    @Transactional
+    public List<CourseTeacher> getTeachers(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return courseInSemesterDao.findTeachers(courseInSemester);
+    }
+
+    @Transactional
+    public List<CourseParticipant> getAllParticipants(CourseInSemester courseInSemester){
+        Objects.requireNonNull(courseInSemester);
+
+        return courseInSemesterDao.findAllParticipants(courseInSemester);
+    }
+
+    @Transactional
+    public CourseParticipant getCourseParticipant(CourseInSemester courseInSemester, User user){
+        Objects.requireNonNull(courseInSemester);
+        Objects.requireNonNull(user);
+
+        return courseInSemesterDao.findParticipant(courseInSemester, user);
+    }
+
+    public List<CourseInSemester> getAllUsersCoursesInSemester(Semester semester, User user){
+        Objects.requireNonNull(semester);
+        Objects.requireNonNull(user);
+
+        return courseInSemesterDao.findUsersCourses(semester, user);
     }
 }

@@ -9,6 +9,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import java.util.Objects;
 
 @Entity
 @NamedQueries({
@@ -73,5 +74,18 @@ public class Semester extends AbstractEntity {
             ", type=" + type +
             ", year='" + year + '\'' +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Semester semester = (Semester) o;
+        return Objects.equals(code, semester.code) && state == semester.state && type == semester.type && Objects.equals(year, semester.year);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code, state, type, year);
     }
 }

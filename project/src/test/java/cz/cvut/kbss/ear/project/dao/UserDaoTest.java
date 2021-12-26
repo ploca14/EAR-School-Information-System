@@ -8,7 +8,12 @@ import cz.cvut.kbss.ear.project.config.KosApiConfig;
 import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
+import cz.cvut.kbss.ear.project.rest.controllers.UserController;
+import cz.cvut.kbss.ear.project.service.CourseInSemesterService;
+import cz.cvut.kbss.ear.project.service.CourseSynchronisationService;
 import cz.cvut.kbss.ear.project.service.KosapiService;
+import cz.cvut.kbss.ear.project.service.ParallelService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,7 +23,11 @@ import org.springframework.context.annotation.FilterType;
 
 @DataJpaTest
 @ComponentScan(basePackageClasses = Application.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {KosApiConfig.class, TokenManager.class, KosapiService.class}))
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
+                KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class,
+                UserController.class, ParallelService.class, CourseInSemesterService.class,
+                CourseSynchronisationService.class
+        }))
 public class UserDaoTest {
 
     @Autowired

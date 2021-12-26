@@ -18,9 +18,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Service
@@ -43,13 +47,19 @@ public class KosapiService {
         this.tokenManager = tokenManager;
         this.restTemplate = restTemplate;
         this.token = tokenManager.getAccessToken();
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
+    }
+
+    public KosCourse getCourse(String courseCode){
+        return getCourseInSemester(courseCode, null);
     }
 
     public KosCourse getCourseInSemester(String courseCode, String semesterCode) {
         HttpEntity<Void> request = getHttpRequestEntity();
-        String courseUrl = "/courses/" + courseCode + "?sem=" + semesterCode;
+        String courseUrl = "/courses/" + courseCode;
+        if (semesterCode != null) courseUrl += "?sem=" + semesterCode;
         String response = restTemplate.exchange(resourceServerURL + courseUrl, HttpMethod.GET, request, String.class).getBody();
-
         ObjectMapper xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             Entry<KosCourse> atomEntry = xmlMapper.readValue(response, new TypeReference<Entry<KosCourse>>() {});
@@ -64,17 +74,17 @@ public class KosapiService {
     private CourseCompletionType convertCompletionType(String kosapiCompletionType){
         switch(kosapiCompletionType){
             case "CLFD_CREDIT":
-                return CourseCompletionType.KZ;
+                return CourseCompletionType.CLFD_CREDIT;
             case "CREDIT_EXAM":
-                return CourseCompletionType.ZAK;
+                return CourseCompletionType.CREDIT_EXAM;
             case "CREDIT":
-                return CourseCompletionType.Z;
+                return CourseCompletionType.CREDIT;
             case "DEFENCE":
-                return CourseCompletionType.O;
+                return CourseCompletionType.DEFENCE;
             case "EXAM":
-                return CourseCompletionType.ZK;
+                return CourseCompletionType.EXAM;
             default:
-                return CourseCompletionType.U;
+                return CourseCompletionType.UNDEFINED;
 
         }
     }
@@ -174,6 +184,7 @@ public class KosapiService {
 
     public List<KosTeacher> getTeachersInParallel(KosParallel kosParallel){
         ArrayList<KosTeacher> kosTeachers = new ArrayList<>();
+        if (kosParallel.getTeacherlinks() == null) return new ArrayList<>();
         for (TeacherLink teacherLink : kosParallel.getTeacherlinks()){
             try {
                 kosTeachers.add(getKosTeacherFromTeacherLink(teacherLink));

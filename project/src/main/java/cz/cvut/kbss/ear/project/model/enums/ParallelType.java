@@ -1,8 +1,10 @@
 package cz.cvut.kbss.ear.project.model.enums;
 
 public enum ParallelType {
-    LECTURE("PARALLEL_TYPE_LECTURE"),
-    EXCERCISE("PARALLEL_TYPE_EXCERSISE");
+    LECTURE("přednáška"),
+    TUTORIAL("cvičení"),
+    LABORATORY("laboratoř"),
+    UNDEFINED("nedefinovaný");
 
     private final String name;
 

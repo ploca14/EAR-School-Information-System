@@ -2,16 +2,15 @@ package cz.cvut.kbss.ear.project.model;
 
 import com.sun.istack.NotNull;
 import cz.cvut.kbss.ear.project.model.enums.ParallelType;
+import org.hibernate.annotations.Cascade;
+
 import java.sql.Time;
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import java.util.List;
+import javax.persistence.*;
 
 @Entity
 public class Parallel extends AbstractEntity {
@@ -136,6 +135,13 @@ public class Parallel extends AbstractEntity {
 
     public void setDayOfWeek(DayOfWeek dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
+    }
+
+    public List<CourseParticipant> getAllParticipants() {
+        List<CourseParticipant> participants = new ArrayList<>();
+        participants.addAll(courseStudents);
+        participants.addAll(courseTeachers);
+        return participants;
     }
 
     @Override

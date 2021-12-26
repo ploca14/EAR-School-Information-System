@@ -1,21 +1,13 @@
 package cz.cvut.kbss.ear.project.model;
 
+import org.hibernate.annotations.DiscriminatorOptions;
+
 import java.util.Collection;
 import java.util.HashSet;
-import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "PARTICIPANT_TYPE")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @NamedQueries({
     @NamedQuery(name = "CourseStudent.findByUser", query = "SELECT cs from CourseStudent cs WHERE :user = cs.user"),
     @NamedQuery(name = "CourseTeacher.findByUser", query = "SELECT ct from CourseTeacher ct WHERE :user = ct.user"),

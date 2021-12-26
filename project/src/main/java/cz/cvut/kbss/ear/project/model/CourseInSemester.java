@@ -3,6 +3,7 @@ package cz.cvut.kbss.ear.project.model;
 import com.sun.istack.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -15,7 +16,25 @@ import javax.persistence.OneToMany;
     @NamedQuery(
         name = "CourseInSemester.findCourseInSemester",
         query = "SELECT c FROM CourseInSemester c WHERE c.semester = :semester AND c.course = :course"
-    )
+    ),
+    @NamedQuery(
+            name = "CourseInSemester.findStudents",
+            query = "SELECT c FROM CourseStudent c WHERE c.course = :course"
+    ),
+    @NamedQuery(
+            name = "CourseInSemester.findTeachers",
+            query = "SELECT c FROM CourseTeacher c WHERE c.course = :course"
+    ),
+    @NamedQuery(
+            name = "CourseInSemester.findAllParticipants",
+            query = "SELECT c FROM CourseParticipant c WHERE c.course = :course"
+    ),
+    @NamedQuery(
+            name = "CourseInSemester.findParticipantByUser",
+            query = "SELECT c FROM CourseParticipant c WHERE c.course = :course AND c.user = :user"
+    ),
+    @NamedQuery(name = "CourseInSemester.findUsersCoursesInSemester", query = "SELECT cis FROM CourseInSemester cis" +
+            " JOIN CourseParticipant cp ON cp.course = cis WHERE cp.user = :user AND cis.semester = :semester")
 })
 public class CourseInSemester extends AbstractEntity {
 
@@ -78,5 +97,18 @@ public class CourseInSemester extends AbstractEntity {
     public void removeParallel(Parallel parallel) {
         parallels.remove(parallel);
         parallel.setCourseInSemester(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CourseInSemester that = (CourseInSemester) o;
+        return Objects.equals(course, that.course) && Objects.equals(semester, that.semester) && Objects.equals(teachers, that.teachers) && Objects.equals(parallels, that.parallels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(course, semester, teachers, parallels);
     }
 }

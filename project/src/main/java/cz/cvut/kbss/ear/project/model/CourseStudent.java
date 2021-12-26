@@ -4,7 +4,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("STUDENT")
 public class CourseStudent extends CourseParticipant {
 
     @Override
