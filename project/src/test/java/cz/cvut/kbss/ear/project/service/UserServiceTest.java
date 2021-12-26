@@ -67,7 +67,7 @@ public class UserServiceTest {
         course.setName("EAR");
         course.setCredits(5);
         course.setCode("B36EAR");
-        course.setCompletionType(CourseCompletionType.KZ);
+        course.setCompletionType(CourseCompletionType.CLFD_CREDIT);
         em.persist(course);
 
         final Semester semester = new Semester();
@@ -83,7 +83,7 @@ public class UserServiceTest {
         parallel1.setEndTime(new Time(17, 45, 0));
         parallel1.setDayOfWeek(DayOfWeek.WEDNESDAY);
         parallel1.setCapacity(20);
-        parallel1.setParallelType(ParallelType.EXCERCISE);
+        parallel1.setParallelType(ParallelType.TUTORIAL);
 
         final Parallel parallel2 = new Parallel();
         parallel2.setName("C102");
@@ -91,7 +91,7 @@ public class UserServiceTest {
         parallel2.setEndTime(new Time(12, 30, 0));
         parallel2.setDayOfWeek(DayOfWeek.WEDNESDAY);
         parallel2.setCapacity(20);
-        parallel2.setParallelType(ParallelType.EXCERCISE);
+        parallel2.setParallelType(ParallelType.TUTORIAL);
 
         final CourseInSemester courseInSemester = new CourseInSemester();
         courseInSemester.setCourse(course);

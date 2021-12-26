@@ -8,6 +8,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import java.util.Objects;
 
 @Entity
 @NamedQueries({
@@ -78,6 +79,19 @@ public class Course extends AbstractEntity {
 
     public void setCompletionType(CourseCompletionType completionType) {
         this.completionType = completionType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return Objects.equals(name, course.name) && Objects.equals(credits, course.credits) && Objects.equals(description, course.description) && Objects.equals(code, course.code) && Objects.equals(recommendedSemester, course.recommendedSemester) && completionType == course.completionType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, credits, description, code, recommendedSemester, completionType);
     }
 
     @Override

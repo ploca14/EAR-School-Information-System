@@ -28,9 +28,23 @@ public class ClassroomService {
         return dao.find(id);
     }
 
+    public Classroom findByName(String name){ return dao.findByName(name);}
+
     @Transactional
     public void persist(Classroom classroom) {
         Objects.requireNonNull(classroom);
         dao.persist(classroom);
+    }
+
+    @Transactional
+    public void merge(Classroom classroom) {
+        Objects.requireNonNull(classroom);
+        dao.update(classroom);
+    }
+
+
+    public boolean exists(String name){
+        Objects.requireNonNull(name);
+        return dao.exists(name);
     }
 }

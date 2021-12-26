@@ -1,13 +1,13 @@
 package cz.cvut.kbss.ear.project.model.enums;
 
 public enum CourseCompletionType {
-    KZ("Klasifikovaný zápočet"),
-    Z("Zápočet"),
-    ZK("Zkouška"),
-    N("Nic"),
-    O("Obhajoba"),
-    U("Nedefinovaný"),
-    ZAK("Zápočet a zkouška");
+    CLFD_CREDIT("Klasifikovaný zápočet"),
+    CREDIT("Zápočet"),
+    EXAM("Zkouška"),
+    NOTHING("Nic"),
+    DEFENCE("Obhajoba"),
+    UNDEFINED("Nedefinovaný"),
+    CREDIT_EXAM("Zápočet a zkouška");
 
     private final String description;
 

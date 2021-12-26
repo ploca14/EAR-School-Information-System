@@ -3,6 +3,7 @@ package cz.cvut.kbss.ear.project.service;
 import cz.cvut.kbss.ear.project.dao.CourseParticipantDao;
 import cz.cvut.kbss.ear.project.dao.UserDao;
 import cz.cvut.kbss.ear.project.exception.UserException;
+import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.model.Parallel;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.Role;
@@ -10,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.springframework.cglib.proxy.Mixin;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +38,7 @@ public class UserService {
     }
 
     @Transactional
-    public void addRoleToUser(User user, Role role) {
+    public void setUserRole(User user, Role role) {
         user.setRole(role);
         dao.update(user);
     }
@@ -72,5 +75,9 @@ public class UserService {
 
     public boolean exists(String username) {
         return dao.findByUsername(username) != null;
+    }
+
+    public User findByUsername(String username) {
+        return dao.findByUsername(username);
     }
 }

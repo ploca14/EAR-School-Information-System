@@ -1,5 +1,7 @@
 package cz.cvut.kbss.ear.project.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public enum Role {
     ADMIN("ROLE_ADMIN"),
     REGULAR_USER("ROLE_REGULAR_USER"),
