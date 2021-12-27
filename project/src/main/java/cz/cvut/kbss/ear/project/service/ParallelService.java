@@ -70,7 +70,7 @@ public class ParallelService {
     }
 
     @Transactional
-    public void removeParallelFromCourse(Parallel parallel) {
+    public void removeParallelFromCourse(Parallel parallel) { // TODO check, that it cascades the remove to the whole parallel content
         parallel.getCourseInSemester().removeParallel(parallel);
         dao.persist(parallel);
     }

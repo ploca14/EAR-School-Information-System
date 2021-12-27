@@ -7,6 +7,7 @@ import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.model.*;
 import cz.cvut.kbss.ear.project.rest.dto.CourseInSemesterDTO;
 import cz.cvut.kbss.ear.project.rest.dto.ParallelDTO;
+import cz.cvut.kbss.ear.project.rest.dto.UsernameDTO;
 import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static cz.cvut.kbss.ear.project.rest.util.DTOConverter.dtoToParallel;
 
 /**
  * Resources
@@ -39,23 +42,31 @@ import java.util.stream.Collectors;
  * - POST:
  *     - import veci z KOSu DONE
  * /api/courses/code/semesterCode/participants DONE
+ * - DELETE:
+ *       - unenrol DONE
  * /api/courses/code/semesterCode/participants/students DONE
  * - POST:
- *      - enrol
+ *      - enrol DONE
  * - DELETE:
- *      - unenrol
+ *      - unenrol DONE
  * /api/courses/code/semesterCode/participants/teachers DONE
  * - POST:
- *      - enrol
+ *      - enrol DONE
  * - DELETE:
- *      - unenrol
+ *      - unenrol DONE
  * /api/courses/code/semesterCode/parallels DONE
  * - POST:
+ *      - create parallel DONE
+ *
+ * /api/courses/code/semesterCode/parallels/id  DONE
+ * - DELETE:
+ *      - remove parallel DONE
+ * /api/courses/code/semesterCode/parallels/id/participants DONE
+ * - POST:
  *      - enrol
- *      - create parallel
  * - DELETE:
  *      - unenrol
- *      - remove parallel
+ *
  **/
 @RestController
 @RequestMapping("/api/courses")
@@ -76,15 +87,18 @@ public class CourseController {
 
     private final KosapiService kosapiService;
 
+    private final UserService userService;
+
     public CourseController(CourseService courseService, CourseInSemesterService courseInSemesterService,
                             SemesterService semesterService, ParallelService parallelService, KosapiService kosapiService,
-                            CourseSynchronisationService courseSynchronisationService) {
+                            CourseSynchronisationService courseSynchronisationService, UserService userService) {
         this.courseService = courseService;
         this.courseInSemesterService = courseInSemesterService;
         this.semesterService = semesterService;
         this.parallelService = parallelService;
         this.kosapiService = kosapiService;
         this.courseSynchronisationService = courseSynchronisationService;
+        this.userService = userService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -204,5 +218,133 @@ public class CourseController {
         LOG.debug("Synchronised course {}.", courseInSemester);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels", courseCode, semesterCode);
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/{courseCode}/{semesterCode}/participants/teachers")
+    public ResponseEntity<Void> enrolAsTeacher(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        if (user == null){
+            throw NotFoundException.create("User", usernameDTO.getUsername());
+        }
+        courseInSemesterService.enrolAsTeacherInCourse(user, courseInSemester);
+        LOG.debug("Enroled {} as teacher in course {}.", user.getUsername(), courseInSemester);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/participants/teachers", courseCode, semesterCode);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/{courseCode}/{semesterCode}/participants/students")
+    public ResponseEntity<Void> enrolAsStudent(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        if (user == null){
+            throw NotFoundException.create("User", usernameDTO.getUsername());
+        }
+        courseInSemesterService.enrolAsStudentInCourse(user, courseInSemester);
+        LOG.debug("Enroled {} as student in course {}.", user.getUsername(), courseInSemester);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/participants/students", courseCode, semesterCode);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = {"/{courseCode}/{semesterCode}/participants/teachers", "/{courseCode}/{semesterCode}/participants/students", "/{courseCode}/{semesterCode}/participants"})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unenrolFromCourse(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        if (user == null){
+            throw NotFoundException.create("User", usernameDTO.getUsername());
+        }
+        courseInSemesterService.unenrolFromCourse(user, courseInSemester);
+        LOG.debug("Unenroled {} from course {}.", user.getUsername(), courseInSemester);
+    }
+
+    @PostMapping(value = "/{courseCode}/{semesterCode}/parallels")
+    public ResponseEntity<Void> createParallel(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody ParallelDTO parallelDTO) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        Parallel parallel = dtoToParallel(parallelDTO);
+        parallelService.addParallelToCourse(parallel, courseInSemester);
+        LOG.debug("Added parallel {} to course {}.", parallel, courseInSemester);
+        final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels/{parallelId}", courseCode, semesterCode, parallel.getId());
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/{courseCode}/{semesterCode}/parallels/{parallelId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeParallel(@PathVariable String courseCode, @PathVariable String semesterCode, @PathVariable Integer parallelId) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        Parallel parallel = parallelService.find(parallelId);
+        if (parallel == null) {
+            throw NotFoundException.create("ParallelL", parallelId);
+        }
+        parallelService.removeParallelFromCourse(parallel);
+        LOG.debug("Removed parallel {} from course {}.", parallel, courseInSemester);
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/parallels/{parallelId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ParallelDTO getParallelById(@PathVariable String courseCode, @PathVariable String semesterCode, @PathVariable Integer parallelId) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        Parallel parallel = parallelService.find(parallelId);
+        if (parallel == null) {
+            throw NotFoundException.create("ParallelL", parallelId);
+        }
+
+        return new ParallelDTO(parallel);
+    }
+
+    @GetMapping(value = "/{courseCode}/{semesterCode}/parallels/{parallelId}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getParallelUsers(@PathVariable String courseCode, @PathVariable String semesterCode, @PathVariable Integer parallelId) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        Parallel parallel = parallelService.find(parallelId);
+        if (parallel == null) {
+            throw NotFoundException.create("ParallelL", parallelId);
+        }
+        return parallel.getAllParticipants()
+                .stream()
+                .map(CourseParticipant::getUser)
+                .collect(Collectors.toList());
+    }
+
+    @DeleteMapping(value = "/{courseCode}/{semesterCode}/parallels/{parallelId}/participants")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unenrolFromParallel(@PathVariable String courseCode, @PathVariable String semesterCode, @PathVariable Integer parallelId, @RequestBody UsernameDTO usernameDTO) {
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
+        if (courseInSemester == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        Parallel parallel = parallelService.find(parallelId);
+        if (parallel == null) {
+            throw NotFoundException.create("ParallelL", parallelId);
+        }
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        if (user == null){
+            throw NotFoundException.create("User", usernameDTO.getUsername());
+        }
+        CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(courseInSemester, user);
+        if (courseParticipant == null){
+            throw NotFoundException.create("CourseParticipant", usernameDTO.getUsername());
+        }
+        parallelService.unenrollFromParallel(courseParticipant, parallel);
+        LOG.debug("Unenrolled user {} from parallel {} in course {}.", user, parallel, courseInSemester);
     }
 }

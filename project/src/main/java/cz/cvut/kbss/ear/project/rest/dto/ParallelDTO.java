@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ParallelDTO {
+    private Integer id;
+
     private String name;
 
     private Time startTime;
@@ -42,6 +44,7 @@ public class ParallelDTO {
     }
 
     public ParallelDTO(Parallel parallel) {
+        id = parallel.getId();
         name = parallel.getName();
         startTime = parallel.getStartTime();
         endTime = parallel.getEndTime();

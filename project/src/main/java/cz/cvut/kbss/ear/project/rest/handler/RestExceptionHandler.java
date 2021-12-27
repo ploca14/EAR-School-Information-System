@@ -73,4 +73,10 @@ public class RestExceptionHandler {
         logException(e);
         return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(EnrolmentException.class)
+    public ResponseEntity<ErrorInfo> enrolmentException(HttpServletRequest request, EnrolmentException e) {
+        logException(e);
+        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
