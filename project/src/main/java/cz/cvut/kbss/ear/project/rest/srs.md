@@ -21,7 +21,7 @@ FR08 - Zobrazit rozvrh
 ## Student
 
 FR09 - Odhlásit se/Přihlásit se na učební paralelku v kurzu.
-- CourseController
+- Parallelcontroller
 
 ## Učitel
 

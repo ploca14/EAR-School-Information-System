@@ -23,6 +23,7 @@ public abstract class CourseParticipant extends AbstractEntity {
     @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     private CourseInSemester course;
 
+    @OrderBy
     @ManyToMany
     private Collection<Parallel> parallels = new HashSet<>();
 

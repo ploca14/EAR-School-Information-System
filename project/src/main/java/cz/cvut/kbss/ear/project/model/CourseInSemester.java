@@ -4,12 +4,7 @@ import com.sun.istack.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 @Entity
 @NamedQueries({
@@ -49,6 +44,7 @@ public class CourseInSemester extends AbstractEntity {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<CourseTeacher> teachers = new HashSet<>();
 
+    @OrderBy
     @OneToMany(mappedBy = "course", cascade = CascadeType.MERGE)
     private Collection<Parallel> parallels = new HashSet<>();
 
