@@ -101,4 +101,29 @@ public class ParallelService {
 
         return result;
     }
+
+    public boolean isUserEnroled(Parallel parallel, User user){
+        for (CourseParticipant parallelParticipant : parallel.getAllParticipants()){
+            if (parallelParticipant.getUser().getUsername().equals(user.getUsername())) return true;
+        }
+
+        return false;
+    }
+
+    public List<Parallel> getUsersParallelsInSemester(User user, Semester semester){
+        List<CourseInSemester> usersCourses = courseInSemesterService.getAllUsersCoursesInSemester(semester, user);
+        List<Parallel> result = new ArrayList<>();
+        for (CourseInSemester courseInSemester : usersCourses){
+            for (Parallel parallel : courseInSemester.getParallels()){
+                boolean userInParallel = parallel.getAllParticipants()
+                        .stream()
+                        .map(CourseParticipant::getUser)
+                        .collect(Collectors.toList())
+                        .contains(user);
+                if (userInParallel) result.add(parallel);
+            }
+        }
+
+        return result;
+    }
 }
