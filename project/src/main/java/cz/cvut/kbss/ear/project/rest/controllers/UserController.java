@@ -1,20 +1,31 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.ear.project.exception.InvalidInputDataException;
 import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.Role;
+import cz.cvut.kbss.ear.project.rest.dto.MeDTO;
 import cz.cvut.kbss.ear.project.rest.dto.TimetableSlotDTO;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.ParallelService;
 import cz.cvut.kbss.ear.project.service.SemesterService;
 import cz.cvut.kbss.ear.project.service.UserService;
+import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,13 +73,15 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public User getCurrent(Principal principal) {
+    public MeDTO getCurrent(Principal principal) {
         final UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) principal;
         LOG.debug(auth.getAuthorities().toString());
-        return userService.getUserByUsername((String) auth.getPrincipal()); // TODO: Create DTO
+        User user = userService.getUserByUsername((String) auth.getPrincipal());
+        if (user == null) {
+            throw new NotFoundException("User does not exist.");
+        }
+        return new MeDTO(user);
     }
-
-    // TODO: Implement refresh route for refreshing JWT tokens
 
     /**
      * Resources
