@@ -71,8 +71,10 @@ public class ParallelService {
 
     @Transactional
     public void removeParallelFromCourse(Parallel parallel) {
-        parallel.getCourseInSemester().removeParallel(parallel);
-        dao.persist(parallel);
+        for (CourseParticipant participant : parallel.getAllParticipants()){
+            unenrollFromParallel(participant, parallel);
+        }
+        dao.remove(parallel);
     }
 
     public boolean isUserEnroled(Parallel parallel, User user){

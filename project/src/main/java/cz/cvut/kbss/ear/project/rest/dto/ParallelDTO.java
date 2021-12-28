@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ParallelDTO {
+    private Integer id;
+
     private String name;
 
     private Time startTime;
@@ -42,6 +44,7 @@ public class ParallelDTO {
     }
 
     public ParallelDTO(Parallel parallel) {
+        id = parallel.getId();
         name = parallel.getName();
         startTime = parallel.getStartTime();
         endTime = parallel.getEndTime();
@@ -60,6 +63,14 @@ public class ParallelDTO {
         classroom = parallel.getClassroom();
         courseCode = parallel.getCourseInSemester().getCourse().getCode();
         semesterCode = parallel.getCourseInSemester().getSemester().getCode();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -163,18 +174,19 @@ public class ParallelDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ParallelDTO that = (ParallelDTO) o;
-        return Objects.equals(name, that.name) && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime) && dayOfWeek == that.dayOfWeek && Objects.equals(note, that.note) && Objects.equals(capacity, that.capacity) && parallelType == that.parallelType && Objects.equals(students, that.students) && Objects.equals(teachers, that.teachers) && Objects.equals(classroom, that.classroom) && Objects.equals(courseCode, that.courseCode) && Objects.equals(semesterCode, that.semesterCode);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime) && dayOfWeek == that.dayOfWeek && Objects.equals(note, that.note) && Objects.equals(capacity, that.capacity) && parallelType == that.parallelType && Objects.equals(students, that.students) && Objects.equals(teachers, that.teachers) && Objects.equals(classroom, that.classroom) && Objects.equals(courseCode, that.courseCode) && Objects.equals(semesterCode, that.semesterCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, startTime, endTime, dayOfWeek, note, capacity, parallelType, students, teachers, classroom, courseCode, semesterCode);
+        return Objects.hash(id, name, startTime, endTime, dayOfWeek, note, capacity, parallelType, students, teachers, classroom, courseCode, semesterCode);
     }
 
     @Override
     public String toString() {
         return "ParallelDTO{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", dayOfWeek=" + dayOfWeek +

@@ -39,9 +39,11 @@ public class Parallel extends AbstractEntity {
     @JoinColumn(name = "course_in_semester_id")
     private CourseInSemester course;
 
+    @OrderBy("user")
     @ManyToMany(mappedBy = "parallels")
     private Collection<CourseStudent> courseStudents = new HashSet<>();
 
+    @OrderBy("user")
     @ManyToMany(mappedBy = "parallels")
     private Collection<CourseTeacher> courseTeachers = new HashSet<>();
 

@@ -2,6 +2,8 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.*;
 import cz.cvut.kbss.ear.project.exception.CourseException;
+import cz.cvut.kbss.ear.project.exception.EnrolmentException;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.CourseParticipant;
@@ -93,6 +95,7 @@ public class CourseInSemesterService {
     public CourseStudent enrolAsStudentInCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
+        if (isUserEnroled(user, course)) throw new EnrolmentException(user.getUsername()  + " is already enroled.");
 
         CourseStudent student = new CourseStudent();
         student.setCourse(course);
@@ -105,6 +108,7 @@ public class CourseInSemesterService {
     public CourseTeacher enrolAsTeacherInCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
+        if (isUserEnroled(user, course)) throw new EnrolmentException(user.getUsername()  + " is already enroled.");
 
         CourseTeacher teacher = new CourseTeacher();
         teacher.setUser(user);
@@ -119,6 +123,9 @@ public class CourseInSemesterService {
         Objects.requireNonNull(course);
 
         CourseParticipant participant = courseParticipantDao.findByUserAndCourse(user, course);
+        if (participant == null){
+            throw NotFoundException.create("CourseParticipant", user);
+        }
         participant.unenrollFromCourse();
         courseParticipantDao.remove(participant);
     }
