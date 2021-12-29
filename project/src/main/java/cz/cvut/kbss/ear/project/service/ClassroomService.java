@@ -18,16 +18,17 @@ public class ClassroomService {
         this.dao = dao;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Classroom> findAll() {
         return dao.findAll();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Classroom find(Integer id) {
         return dao.find(id);
     }
 
+    @Transactional(readOnly = true)
     public Classroom findByName(String name){ return dao.findByName(name);}
 
     @Transactional
@@ -42,7 +43,7 @@ public class ClassroomService {
         dao.update(classroom);
     }
 
-
+    @Transactional(readOnly = true)
     public boolean exists(String name){
         Objects.requireNonNull(name);
         return dao.exists(name);
