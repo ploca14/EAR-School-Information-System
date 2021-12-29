@@ -9,6 +9,8 @@ import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
+import cz.cvut.kbss.ear.project.rest.controllers.MyController;
+import cz.cvut.kbss.ear.project.rest.controllers.ParallelController;
 import cz.cvut.kbss.ear.project.rest.controllers.UserController;
 import cz.cvut.kbss.ear.project.service.CourseInSemesterService;
 import cz.cvut.kbss.ear.project.service.CourseSynchronisationService;
@@ -26,7 +28,7 @@ import org.springframework.context.annotation.FilterType;
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                 KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class,
                 UserController.class, ParallelService.class, CourseInSemesterService.class,
-                CourseSynchronisationService.class
+                CourseSynchronisationService.class, MyController.class, ParallelController.class
         }))
 public class UserDaoTest {
 

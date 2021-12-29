@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.CourseParticipantDao;
 import cz.cvut.kbss.ear.project.dao.UserDao;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.exception.UserException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.model.Parallel;
@@ -48,10 +49,6 @@ public class UserService {
         return dao.find(id);
     }
 
-    public User getUserByUsername(String username) {
-        return dao.findByUsername(username);
-    }
-
     @Transactional
     public void persist(User user) {
         Objects.requireNonNull(user);
@@ -78,6 +75,10 @@ public class UserService {
     }
 
     public User findByUsername(String username) {
-        return dao.findByUsername(username);
+        User user = dao.findByUsername(username);
+        if (user == null) {
+            throw NotFoundException.create("User", username);
+        }
+        return user;
     }
 }

@@ -74,7 +74,13 @@ public class TokenController {
                 new ObjectMapper().writeValue(response.getOutputStream(), tokens);
             }
         } else {
-            throw new RuntimeException("Refresh token is missing");
+            response.setHeader("error", "Missing refresh token");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            // Build the error response
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("error", "Missing refresh token");
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            new ObjectMapper().writeValue(response.getOutputStream(), tokens);
         }
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,73 +50,54 @@ public class ParallelController {
         this.courseInSemesterService = courseInSemesterService;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping(value = "/{parallelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeParallel(@PathVariable Integer parallelId) {
-        Parallel parallel = tryToFindParallel(parallelId);
+        Parallel parallel = parallelService.find(parallelId);
         parallelService.removeParallelFromCourse(parallel);
         LOG.debug("Removed parallel {}.", parallel);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{parallelId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ParallelDTO getParallelById(@PathVariable Integer parallelId) {
-        Parallel parallel = tryToFindParallel(parallelId);
+        Parallel parallel = parallelService.find(parallelId);
         return new ParallelDTO(parallel);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{parallelId}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getParallelUsers(@PathVariable Integer parallelId) {
-        Parallel parallel = tryToFindParallel(parallelId);
+        Parallel parallel = parallelService.find(parallelId);
         return parallel.getAllParticipants()
                 .stream()
                 .map(CourseParticipant::getUser)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @DeleteMapping(value = "/{parallelId}/participants")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unenrolFromParallel(@PathVariable Integer parallelId, @RequestBody UsernameDTO usernameDTO) {
-        Parallel parallel = tryToFindParallel(parallelId);
+        Parallel parallel = parallelService.find(parallelId);
         CourseInSemester courseInSemester = parallel.getCourseInSemester();
-        User user = tryToFindUser(usernameDTO.getUsername());
-        CourseParticipant courseParticipant = tryToFindCourseParticipant(user, courseInSemester);
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(courseInSemester, user);
         parallelService.unenrollFromParallel(courseParticipant, parallel);
         LOG.debug("Unenrolled user {} from parallel {} in course {}.", user, parallel, courseInSemester);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @PostMapping(value = "/{parallelId}/participants")
     public ResponseEntity<Void> enrolInParallel(@PathVariable Integer parallelId, @RequestBody UsernameDTO usernameDTO) {
-        Parallel parallel = tryToFindParallel(parallelId);
+        Parallel parallel = parallelService.find(parallelId);
         CourseInSemester courseInSemester = parallel.getCourseInSemester();
-        User user = tryToFindUser(usernameDTO.getUsername());
-        CourseParticipant courseParticipant = tryToFindCourseParticipant(user, courseInSemester);
+        User user = userService.findByUsername(usernameDTO.getUsername());
+        CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(courseInSemester, user);
         parallelService.enrollInParallel(courseParticipant, parallel);
         LOG.debug("Enroled user {} in parallel {} in course {}.", user, parallel, courseInSemester);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{parallelId}/participants", parallel.getId());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
-    }
-
-    private Parallel tryToFindParallel(Integer parallelId) {
-        Parallel parallel = parallelService.find(parallelId);
-        if (parallel == null) {
-            throw NotFoundException.create("ParallelL", parallelId);
-        }
-        return parallel;
-    }
-
-    private User tryToFindUser(String username) {
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            throw NotFoundException.create("User", username);
-        }
-        return user;
-    }
-
-    private CourseParticipant tryToFindCourseParticipant(User user, CourseInSemester courseInSemester) {
-        CourseParticipant courseParticipant = courseInSemesterService.getCourseParticipant(courseInSemester, user);
-        if (courseParticipant == null) {
-            throw NotFoundException.create("CourseParticipant", user.getUsername());
-        }
-        return courseParticipant;
     }
 }
