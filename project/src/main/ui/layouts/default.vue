@@ -108,13 +108,13 @@ export default {
           icon: 'mdi-account-plus',
           title: 'Add user',
           to: '/register',
-          enabled: this.$auth.hasScope('ADMIN') || this.$auth.hasScope('STUDY_DEPARTMENT_EMPLOYEE'),
+          enabled: this.$auth.hasScope('ADMIN'),
         },
         {
           icon: 'mdi-book-plus-multiple',
           title: 'Add course',
           to: '/new-course',
-          enabled: this.$auth.hasScope('ADMIN'),
+          enabled: this.$auth.hasScope('ADMIN') || this.$auth.hasScope('STUDY_DEPARTMENT_EMPLOYEE'),
         }
       ],
       title: 'School Information System'

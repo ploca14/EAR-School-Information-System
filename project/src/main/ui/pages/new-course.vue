@@ -74,7 +74,7 @@
 
 <script>
 export default {
-  middleware: 'authenticated',
+  middleware: 'isstudydep',
 
   data() {
     return {

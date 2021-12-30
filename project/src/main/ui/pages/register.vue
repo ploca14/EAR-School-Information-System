@@ -80,7 +80,7 @@
 
 <script>
 export default {
-  middleware: 'authenticated',
+  middleware: 'isadmin',
 
   data() {
     return {
