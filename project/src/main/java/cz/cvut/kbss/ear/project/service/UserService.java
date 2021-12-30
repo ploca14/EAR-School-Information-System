@@ -44,9 +44,14 @@ public class UserService {
         dao.update(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User find(Integer id) {
         return dao.find(id);
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserByUsername(String username) {
+        return dao.findByUsername(username);
     }
 
     @Transactional
@@ -63,17 +68,19 @@ public class UserService {
         dao.persist(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Collection<Parallel> getTimetableInSemester(User user) {
         return courseParticipantDao.findAllByUser(user).stream()
             .flatMap(u -> u.getParallels().stream()).collect(
                 Collectors.toSet());
     }
 
+    @Transactional(readOnly = true)
     public boolean exists(String username) {
         return dao.findByUsername(username) != null;
     }
 
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
         User user = dao.findByUsername(username);
         if (user == null) {

@@ -39,17 +39,17 @@ public class CourseService {
         return course;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Course> findAll() {
         return dao.findAll();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Course find(Integer id) {
         return dao.find(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Course findByCode(String code){
         return dao.findByCode(code);
     }
