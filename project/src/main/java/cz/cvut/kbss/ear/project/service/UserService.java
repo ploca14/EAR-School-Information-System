@@ -32,7 +32,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return dao.findAll();
     }
@@ -43,11 +43,12 @@ public class UserService {
         dao.update(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User find(Integer id) {
         return dao.find(id);
     }
 
+    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return dao.findByUsername(username);
     }
@@ -66,17 +67,19 @@ public class UserService {
         dao.persist(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Collection<Parallel> getTimetableInSemester(User user) {
         return courseParticipantDao.findAllByUser(user).stream()
             .flatMap(u -> u.getParallels().stream()).collect(
                 Collectors.toSet());
     }
 
+    @Transactional(readOnly = true)
     public boolean exists(String username) {
         return dao.findByUsername(username) != null;
     }
 
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
         return dao.findByUsername(username);
     }
