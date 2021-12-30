@@ -127,7 +127,8 @@ public class CourseSynchronisationService {
                 List<KosStudent> studentsInParallel = parallelStudents.get(kosParallel);
                 List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
 
-            enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
+                enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
+            }
         }
     }
 
