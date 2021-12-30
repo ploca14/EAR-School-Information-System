@@ -29,12 +29,12 @@ public class ParallelService {
         this.courseInSemesterService = courseInSemesterService;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Parallel> findAll() {
         return dao.findAll();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Parallel find(Integer id) {
         Parallel parallel = dao.find(id);
         if (parallel == null) {
@@ -86,6 +86,7 @@ public class ParallelService {
         dao.remove(parallel);
     }
 
+    @Transactional(readOnly = true)
     public boolean isUserEnroled(Parallel parallel, User user){
         for (CourseParticipant parallelParticipant : parallel.getAllParticipants()){
             if (parallelParticipant.getUser().getUsername().equals(user.getUsername())) return true;
@@ -94,6 +95,7 @@ public class ParallelService {
         return false;
     }
 
+    @Transactional(readOnly = true)
     public List<Parallel> getUsersParallelsInSemester(User user, Semester semester){
         List<CourseInSemester> usersCourses = courseInSemesterService.getAllUsersCoursesInSemester(semester, user);
         List<Parallel> result = new ArrayList<>();
