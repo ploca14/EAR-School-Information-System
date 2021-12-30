@@ -5,17 +5,18 @@ import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.Role;
+import cz.cvut.kbss.ear.project.rest.dto.RegistrationFormDTO;
 import cz.cvut.kbss.ear.project.rest.dto.TimetableSlotDTO;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.ParallelService;
 import cz.cvut.kbss.ear.project.service.SemesterService;
 import cz.cvut.kbss.ear.project.service.UserService;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.minidev.json.JSONObject;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,6 +39,8 @@ public class UserController {
 
     private final ParallelService parallelService;
 
+    private final ModelMapper mapper = new ModelMapper();
+
     @Autowired
     public UserController(UserService userService, SemesterService semesterService, ParallelService parallelService) {
         this.userService = userService;
@@ -49,26 +51,17 @@ public class UserController {
     /**
      * Registers a new user.
      *
-     * @param user User data
+     * @param registrationForm User data
      */
-    @PreAuthorize("(!#user.isAdmin() && anonymous) || hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> register(@RequestBody User user) { // TODO: Create User Registration DTO
+    public ResponseEntity<Void> register(@RequestBody RegistrationFormDTO registrationForm) {
+        User user = mapper.map(registrationForm, User.class);
         userService.persist(user);
         LOG.debug("User {} successfully registered.", user);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/current");
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public User getCurrent(Principal principal) {
-        final UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) principal;
-        LOG.debug(auth.getAuthorities().toString());
-        return userService.getUserByUsername((String) auth.getPrincipal()); // TODO: Create DTO
-    }
-
-    // TODO: Implement refresh route for refreshing JWT tokens
 
     /**
      * Resources
@@ -79,6 +72,7 @@ public class UserController {
      *      - urcit roli
      *
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{username}/{semesterCode}/timetable", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TimetableSlotDTO> getUsersParallels(@PathVariable String username, @PathVariable String semesterCode) {
         User user = userService.findByUsername(username);
@@ -91,12 +85,10 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/{username}/role", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void setRole(@PathVariable String username, @RequestBody Map<String, Object> inputData) {
         User user = userService.findByUsername(username);
-        if (user == null) {
-            throw NotFoundException.create("User", username);
-        }
 
         JSONObject jsonObj = new JSONObject(inputData); // I am doing it this way, because i was unable to deserialize enum Role directly
         String rolename = jsonObj.getAsString("role");

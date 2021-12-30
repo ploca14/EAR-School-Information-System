@@ -18,7 +18,17 @@ public class SystemInitializer {
     /**
      * Default admin username
      */
-    private static final String ADMIN_USERNAME = "ear-adminj@fel.cvut.cz";
+    private static final String ADMIN_USERNAME = "ear-admin@fel.cvut.cz";
+
+    /**
+     * Default regular user username
+     */
+    private static final String REGULAR_USER_USERNAME = "ear-user@fel.cvut.cz";
+
+    /**
+     * Default study department employee username
+     */
+    private static final String STUDY_DEPARTMENT_EMPLOYEE_USERNAME = "ear-study@fel.cvut.cz";
 
     private final UserService userService;
 
@@ -54,8 +64,46 @@ public class SystemInitializer {
         admin.setLastName("Administrator");
         admin.setPassword("heslo123");
         admin.setPermanentResidence("");
-        admin.setRole(Role.REGULAR_USER);
+        admin.setRole(Role.ADMIN);
         LOG.info("Generated admin user with credentials " + admin.getUsername() + "/" + admin.getPassword());
         userService.persist(admin);
+    }
+
+    /**
+     * Generates an user account if it does not already exist.
+     */
+    private void generateUser() {
+        if (userService.exists(REGULAR_USER_USERNAME)) {
+            return;
+        }
+        final User user = new User();
+        user.setUsername("user");
+        user.setEmail(REGULAR_USER_USERNAME);
+        user.setFirstName("System");
+        user.setLastName("User");
+        user.setPassword("heslo123");
+        user.setPermanentResidence("");
+        user.setRole(Role.REGULAR_USER);
+        LOG.info("Generated regular user with credentials " + user.getUsername() + "/" + user.getPassword());
+        userService.persist(user);
+    }
+
+    /**
+     * Generates an study department employee account if it does not already exist.
+     */
+    private void generateStudyDepartmentEmployee() {
+        if (userService.exists(STUDY_DEPARTMENT_EMPLOYEE_USERNAME)) {
+            return;
+        }
+        final User user = new User();
+        user.setUsername("study");
+        user.setEmail(STUDY_DEPARTMENT_EMPLOYEE_USERNAME);
+        user.setFirstName("System");
+        user.setLastName("Study Department Employee");
+        user.setPassword("heslo123");
+        user.setPermanentResidence("");
+        user.setRole(Role.STUDY_DEPARTMENT_EMPLOYEE);
+        LOG.info("Generated study department employee with credentials " + user.getUsername() + "/" + user.getPassword());
+        userService.persist(user);
     }
 }

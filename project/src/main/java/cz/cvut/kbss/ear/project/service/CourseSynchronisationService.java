@@ -66,7 +66,7 @@ public class CourseSynchronisationService {
         //List<User> allParticipantsFromKos = students;
         //allParticipantsFromKos.addAll(teachers);
 
-        // unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
+        //unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
     }
 
     private void enrolNewUsersInCourse(List<User> students, List<User> teachers, CourseInSemester courseInSemester){
@@ -127,7 +127,6 @@ public class CourseSynchronisationService {
             List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
 
             enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
-            // TODO unenrol old users
         }
     }
 

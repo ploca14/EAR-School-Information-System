@@ -1,11 +1,16 @@
 package cz.cvut.kbss.ear.project.service;
 
+import cz.cvut.kbss.ear.project.enviroment.Environment;
+import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosParallel;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosStudent;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosTeacher;
 import cz.cvut.kbss.ear.project.model.Course;
+import cz.cvut.kbss.ear.project.model.User;
+import cz.cvut.kbss.ear.project.model.enums.Role;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +28,15 @@ public class KosapiServiceTest {
 
     @Autowired
     KosapiService kosapiService;
+
+    private User user;
+
+    @BeforeEach
+    public void setUp() {
+        user = Generator.generateUser();
+        user.setRole(Role.ADMIN);
+        Environment.setCurrentUser(user);
+    }
 
     @Test
     public void getCourseInSemester_getB6B36EAR_courseFetchedFromKosAPI(){

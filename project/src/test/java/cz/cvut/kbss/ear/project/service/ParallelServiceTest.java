@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import cz.cvut.kbss.ear.project.enviroment.Environment;
 import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.exception.EnrolmentException;
 import cz.cvut.kbss.ear.project.model.Course;
@@ -16,6 +17,7 @@ import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import cz.cvut.kbss.ear.project.model.enums.ParallelType;
+import cz.cvut.kbss.ear.project.model.enums.Role;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
 import java.sql.Time;
@@ -56,6 +58,8 @@ public class ParallelServiceTest {
     @Before
     public void setUp() {
         final User user = Generator.generateUser();
+        user.setRole(Role.ADMIN);
+        Environment.setCurrentUser(user);
         this.user = user;
         em.persist(user);
 

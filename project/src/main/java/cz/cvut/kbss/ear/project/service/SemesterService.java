@@ -1,6 +1,7 @@
 package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.SemesterDao;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.exception.SemesterException;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.enums.SemesterState;
@@ -85,6 +86,16 @@ public class SemesterService {
 
         newSemester.setState(SemesterState.CURRENT);
         dao.update(newSemester);
+    }
+
+    @Transactional
+    public Semester getCurrentSemester() {
+        List<Semester> semesters = dao.findByState(SemesterState.CURRENT);
+        if (semesters.size() > 0) {
+            return semesters.get(0);
+        }
+
+        throw new NotFoundException("There's no current semester");
     }
 
     private boolean isCodeUnique(String code) {

@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Entity
 public class Parallel extends AbstractEntity {

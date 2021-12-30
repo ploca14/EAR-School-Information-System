@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import cz.cvut.kbss.ear.project.dao.CourseInSemesterDao;
 import cz.cvut.kbss.ear.project.dao.CourseStudentDao;
 import cz.cvut.kbss.ear.project.dao.CourseTeacherDao;
+import cz.cvut.kbss.ear.project.enviroment.Environment;
 import cz.cvut.kbss.ear.project.enviroment.Generator;
 import cz.cvut.kbss.ear.project.exception.CourseException;
 import cz.cvut.kbss.ear.project.kosapi.entities.KosCourse;
@@ -18,6 +19,7 @@ import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
 import cz.cvut.kbss.ear.project.model.enums.ParallelType;
+import cz.cvut.kbss.ear.project.model.enums.Role;
 import cz.cvut.kbss.ear.project.model.enums.SemesterType;
 import java.sql.Time;
 import java.time.DayOfWeek;
@@ -27,6 +29,7 @@ import javax.persistence.PersistenceContext;
 
 import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -64,6 +67,13 @@ public class CourseInSemesterServiceTest {
 
     @Autowired
     private ParallelService parallelService;
+
+    @BeforeEach
+    public void setUp() {
+        final User user = Generator.generateUser();
+        user.setRole(Role.ADMIN);
+        Environment.setCurrentUser(user);
+    }
 
     @Test
     public void createNewCourseInSemester_createTwoInstancesInOneSemester_exceptionThrown() {

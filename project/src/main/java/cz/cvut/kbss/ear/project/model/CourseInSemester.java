@@ -45,7 +45,7 @@ public class CourseInSemester extends AbstractEntity {
     private Collection<CourseTeacher> teachers = new HashSet<>();
 
     @OrderBy
-    @OneToMany(mappedBy = "course", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<Parallel> parallels = new HashSet<>();
 
     public Course getCourse() {

@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
@@ -106,6 +107,7 @@ public class User extends AbstractEntity {
         return role;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void setRole(Role role) {
         this.role = role;
     }

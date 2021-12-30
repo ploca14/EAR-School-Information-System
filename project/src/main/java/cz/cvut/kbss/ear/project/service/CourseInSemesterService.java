@@ -15,6 +15,8 @@ import cz.cvut.kbss.ear.project.model.User;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,8 +66,12 @@ public class CourseInSemesterService {
     }
 
     @Transactional(readOnly = true)
-    public CourseInSemester findByCode(String course_code, String semester_code){
-        return courseInSemesterDao.findCourseInSemester(courseDao.findByCode(course_code), semesterDao.findByCode(semester_code));
+    public CourseInSemester findByCode(String courseCode, String semesterCode){
+        CourseInSemester result = courseInSemesterDao.findCourseInSemester(courseDao.findByCode(courseCode), semesterDao.findByCode(semesterCode));
+        if (result == null) {
+            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
+        }
+        return result;
     }
 
     @Transactional
@@ -92,6 +98,7 @@ public class CourseInSemesterService {
     }
 
     @Transactional
+    @PreAuthorize("@securityConditions.checkIsAllowedToEdit(#course.semester)")
     public CourseStudent enrolAsStudentInCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
@@ -118,6 +125,7 @@ public class CourseInSemesterService {
     }
 
     @Transactional
+    @PreAuthorize("@securityConditions.checkIsAllowedToEdit(#course.semester)")
     public void unenrolFromCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
@@ -180,7 +188,13 @@ public class CourseInSemesterService {
         Objects.requireNonNull(courseInSemester);
         Objects.requireNonNull(user);
 
-        return courseInSemesterDao.findParticipant(courseInSemester, user);
+        CourseParticipant courseParticipant = courseInSemesterDao.findParticipant(courseInSemester, user);
+
+        if (courseParticipant == null) {
+            throw new EnrolmentException("User is not enrolled in the course.");
+        }
+
+        return courseParticipant;
     }
 
     @Transactional(readOnly = true)

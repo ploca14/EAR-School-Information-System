@@ -12,12 +12,14 @@ import cz.cvut.kbss.ear.project.rest.util.Code;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
 import cz.cvut.kbss.ear.project.service.*;
 import cz.cvut.kbss.ear.project.service.util.KosapiEntityConverter;
+import cz.cvut.kbss.ear.project.service.util.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -106,36 +108,40 @@ public class CourseController {
         return course;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getUsersInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         return courseInSemesterService.getAllParticipants(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants/students",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getStudentsInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         return courseInSemesterService.getStudents(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{courseCode}/{semesterCode}/participants/teachers",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getTeachersIncourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         return courseInSemesterService.getTeachers(courseInSemester)
                 .stream()
                 .map((CourseParticipant::getUser))
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{courseCode}/{semesterCode}/parallels", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ParallelDTO> getParallelsInCourse(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         return courseInSemesterService.getParallels(courseInSemester)
                 .stream()
                 .map(ParallelDTO::new)
@@ -144,10 +150,11 @@ public class CourseController {
 
     @GetMapping(value = "/{courseCode}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public CourseInSemesterDTO getCourseInSemester(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         return new CourseInSemesterDTO(courseInSemester);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @PostMapping(value = "/{courseCode}/{semesterCode}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourseInSemester(@PathVariable String courseCode, @PathVariable String semesterCode) {
         Course course = tryToFindCourse(courseCode);
@@ -158,6 +165,7 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourse(@RequestBody Course course) {
         courseService.persist(course);
@@ -166,6 +174,7 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/kos", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createCourseFromKos(@RequestBody Code code) {
         KosCourse kosCourse = kosapiService.getCourse(code.getCode());
@@ -175,18 +184,20 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/{courseCode}/{semesterCode}/kos")
     public ResponseEntity<Void> synchroniseCourseInSemesterWithKos(@PathVariable String courseCode, @PathVariable String semesterCode) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         courseSynchronisationService.synchroniseWithKos(courseInSemester);
         LOG.debug("Synchronised course {}.", courseInSemester);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels", courseCode, semesterCode);
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @PostMapping(value = "/{courseCode}/{semesterCode}/participants/teachers")
     public ResponseEntity<Void> enrolAsTeacher(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         User user = tryToFindUser(usernameDTO.getUsername());
         courseInSemesterService.enrolAsTeacherInCourse(user, courseInSemester);
         LOG.debug("Enroled {} as teacher in course {}.", user.getUsername(), courseInSemester);
@@ -194,9 +205,10 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @PostMapping(value = "/{courseCode}/{semesterCode}/participants/students")
     public ResponseEntity<Void> enrolAsStudent(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         User user = tryToFindUser(usernameDTO.getUsername());
         courseInSemesterService.enrolAsStudentInCourse(user, courseInSemester);
         LOG.debug("Enroled {} as student in course {}.", user.getUsername(), courseInSemester);
@@ -204,31 +216,25 @@ public class CourseController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_STUDY_DEPARTMENT_EMPLOYEE')")
     @DeleteMapping(value = {"/{courseCode}/{semesterCode}/participants/teachers", "/{courseCode}/{semesterCode}/participants/students", "/{courseCode}/{semesterCode}/participants"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unenrolFromCourse(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody UsernameDTO usernameDTO) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         User user = tryToFindUser(usernameDTO.getUsername());
         courseInSemesterService.unenrolFromCourse(user, courseInSemester);
         LOG.debug("Unenroled {} from course {}.", user.getUsername(), courseInSemester);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/{courseCode}/{semesterCode}/parallels")
     public ResponseEntity<Void> createParallel(@PathVariable String courseCode, @PathVariable String semesterCode, @RequestBody ParallelDTO parallelDTO) {
-        CourseInSemester courseInSemester = tryToFindCourseInSemester(semesterCode, courseCode);
+        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
         Parallel parallel = dtoToParallel(parallelDTO);
         parallelService.addParallelToCourse(parallel, courseInSemester);
         LOG.debug("Added parallel {} to course {}.", parallel, courseInSemester);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{courseCode}/{semesterCode}/parallels/{parallelId}", courseCode, semesterCode, parallel.getId());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
-    }
-
-    private CourseInSemester tryToFindCourseInSemester(String semesterCode, String courseCode){
-        CourseInSemester courseInSemester = courseInSemesterService.findByCode(courseCode, semesterCode);
-        if (courseInSemester == null) {
-            throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
-        }
-        return courseInSemester;
     }
 
     private User tryToFindUser(String username){

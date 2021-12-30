@@ -2,6 +2,7 @@ package cz.cvut.kbss.ear.project.service;
 
 import cz.cvut.kbss.ear.project.dao.ParallelDao;
 import cz.cvut.kbss.ear.project.exception.EnrolmentException;
+import cz.cvut.kbss.ear.project.exception.NotFoundException;
 import cz.cvut.kbss.ear.project.model.*;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,11 @@ public class ParallelService {
 
     @Transactional(readOnly = true)
     public Parallel find(Integer id) {
-        return dao.find(id);
+        Parallel parallel = dao.find(id);
+        if (parallel == null) {
+            throw NotFoundException.create("Parallel", id);
+        }
+        return parallel;
     }
 
     @Transactional
@@ -64,13 +70,16 @@ public class ParallelService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @securityConditions.checkIsTeacherOf(#course)")
     public void addParallelToCourse(Parallel parallel, CourseInSemester course) {
         course.addParallel(parallel);
         dao.persist(parallel);
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_ADMIN') || @securityConditions.checkIsTeacherOf(#course)")
     public void removeParallelFromCourse(Parallel parallel) {
+        parallel.getCourseInSemester().removeParallel(parallel);
         for (CourseParticipant participant : parallel.getAllParticipants()){
             unenrollFromParallel(participant, parallel);
         }
