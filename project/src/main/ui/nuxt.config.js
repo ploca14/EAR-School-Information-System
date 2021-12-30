@@ -9,8 +9,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - ui',
-    title: 'ui',
+    titleTemplate: '%s',
     htmlAttrs: {
       lang: 'en'
     },
@@ -61,10 +60,12 @@ export default {
         scheme: 'refresh',
         token: {
           property: 'accessToken',
+          maxAge: 30 * 1000,
         },
         refreshToken: {
           property: 'refreshToken',
           data: 'refreshToken',
+          maxAge: 14 * 24 * 60 * 60 * 1000,
         },
         user: {
           property: false,

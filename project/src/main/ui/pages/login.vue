@@ -64,6 +64,12 @@ export default {
     }
   },
 
+  head() {
+    return {
+      title: 'Login',
+    }
+  },
+
   methods: {
     async userLogin() {
       try {

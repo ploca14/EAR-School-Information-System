@@ -3,7 +3,7 @@
     <v-col cols="12" sm="8" md="6">
       <v-card>
         <v-card-title class="justify-center">
-          Create new user
+          {{ title }}
         </v-card-title>
         <v-card-text>
           <v-form
@@ -84,6 +84,7 @@ export default {
 
   data() {
     return {
+      title: 'Create new user',
       valid: false,
       payload: {
         username: '',
@@ -117,6 +118,12 @@ export default {
       showPassword: false,
       message: '',
       colour: '',
+    }
+  },
+
+  head() {
+    return {
+      title: this.title,
     }
   },
 

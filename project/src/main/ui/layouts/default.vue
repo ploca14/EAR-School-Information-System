@@ -3,7 +3,9 @@
     <v-navigation-drawer
       mobile-breakpoint="sm"
       v-model="drawer"
-      :mini-variant="miniVariant"
+      :mini-variant="!pinned && mini"
+      @mouseenter.native="mini = false"
+      @mouseleave.native="mini = true"
       fixed
       app
     >
@@ -24,17 +26,30 @@
         </v-list-item>
       </v-list>
       <template v-slot:append>
-        <v-list-item @click.stop="miniVariant = !miniVariant">
-          <v-list-item-action>
-            <v-icon v-if="miniVariant">mdi-arrow-collapse-right</v-icon>
-            <v-icon v-else>mdi-arrow-collapse-left</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-content>
-              Collapse
-            </v-list-item-content>
-          </v-list-item-content>
-        </v-list-item>
+        <v-list dense>
+          <v-list-item @click.stop="pinned = !pinned">
+            <template v-if="pinned">
+              <v-list-item-action>
+                <v-icon>mdi-pin-off</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-content>
+                  Unpin
+                </v-list-item-content>
+              </v-list-item-content>
+            </template>
+            <template v-else>
+              <v-list-item-action>
+                <v-icon>mdi-pin</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-content>
+                  Pin
+                </v-list-item-content>
+              </v-list-item-content>
+            </template>
+          </v-list-item>
+        </v-list>
       </template>
     </v-navigation-drawer>
     <v-app-bar
@@ -61,7 +76,8 @@
 export default {
   data () {
     return {
-      miniVariant: true,
+      mini: true,
+      pinned: false,
       drawer: true,
       items: [
         {
@@ -95,7 +111,7 @@ export default {
           enabled: this.$auth.hasScope('ADMIN') || this.$auth.hasScope('STUDY_DEPARTMENT_EMPLOYEE'),
         },
         {
-          icon: 'mdi-account-plus',
+          icon: 'mdi-book-plus-multiple',
           title: 'Add course',
           to: '/new-course',
           enabled: this.$auth.hasScope('ADMIN'),
