@@ -14,7 +14,11 @@ import javax.persistence.*;
     @NamedQuery(name = "CourseParticipant.findByUser", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user"),
     @NamedQuery(name = "CourseParticipant.findByUserAndCourse", query = "SELECT cp from CourseParticipant cp WHERE :user = cp.user AND :course = cp.course")
 })
-public abstract class CourseParticipant extends AbstractEntity {
+public abstract class CourseParticipant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -26,6 +30,14 @@ public abstract class CourseParticipant extends AbstractEntity {
     @OrderBy
     @ManyToMany
     private Collection<Parallel> parallels = new HashSet<>();
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Collection<Parallel> getParallels() {
         return parallels;

@@ -123,12 +123,14 @@ public class CourseSynchronisationService {
 
     private void synchroniseParallelEnrolments(){
         for (KosParallel kosParallel : kosParallels){
-            Parallel parallel = createOrGetParallel(kosParallel);
-            List<KosStudent> studentsInParallel = parallelStudents.get(kosParallel);
-            List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
+            if (kosParallel.getTimetableSlot() != null) {
+                Parallel parallel = createOrGetParallel(kosParallel);
+                List<KosStudent> studentsInParallel = parallelStudents.get(kosParallel);
+                List<KosTeacher> teachersInParallel = parallelTeachers.get(kosParallel);
 
-            enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
-            // TODO unenrol old users
+                enrolNewUsersInParallel(parallel, studentsInParallel, teachersInParallel);
+                // TODO unenrol old users
+            }
         }
     }
 

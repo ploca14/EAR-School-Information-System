@@ -46,6 +46,8 @@ public class SystemInitializer {
         TransactionTemplate txTemplate = new TransactionTemplate(txManager);
         txTemplate.execute((status) -> {
             generateAdmin();
+            generateUser();
+            generateStudyDepartmentEmployee();
             return null;
         });
     }
