@@ -8,10 +8,7 @@ import cz.cvut.kbss.ear.project.config.KosApiConfig;
 import cz.cvut.kbss.ear.project.kosapi.oauth2.TokenManager;
 import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.enums.CourseCompletionType;
-import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
-import cz.cvut.kbss.ear.project.rest.controllers.MyController;
-import cz.cvut.kbss.ear.project.rest.controllers.ParallelController;
-import cz.cvut.kbss.ear.project.rest.controllers.UserController;
+import cz.cvut.kbss.ear.project.rest.controllers.*;
 import cz.cvut.kbss.ear.project.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,8 @@ import org.springframework.context.annotation.FilterType;
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                 KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class,
                 UserController.class, ParallelService.class, CourseInSemesterService.class,
-                CourseSynchronisationService.class, MyController.class, ParallelController.class
+                CourseSynchronisationService.class, MyController.class, ParallelController.class,
+                CourseInSemesterService.class, SemesterController.class
         }))
 public class CourseDaoTest {
 

@@ -29,7 +29,7 @@ import org.springframework.context.annotation.FilterType;
                 KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class,
                 UserController.class, ParallelService.class, CourseInSemesterService.class,
                 CourseSynchronisationService.class, MyController.class, ParallelController.class,
-                SemesterController.class
+                CourseInSemesterService.class, SemesterController.class
         }))
 public class BaseDaoTest {
 
