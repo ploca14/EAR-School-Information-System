@@ -27,7 +27,7 @@ public class Environment {
      * @return Object mapper
      */
     public static ObjectMapper getObjectMapper() {
-        return new ObjectMapper(); // TODO mozna pridat do cfg
+        return new ObjectMapper();
     }
 
     public static HttpMessageConverter<?> createDefaultMessageConverter() {

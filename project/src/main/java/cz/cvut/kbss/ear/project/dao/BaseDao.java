@@ -7,8 +7,6 @@ import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-// TODO otazka do dalsiho cvika. je potreba psat furt jak dement findByAttribute namedQueries, anebo se to da nejak
-// TODO rozumne udelat obecne?
 public abstract class BaseDao<T> implements GenericDao<T> {
 
     @PersistenceContext

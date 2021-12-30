@@ -2,7 +2,10 @@ package cz.cvut.kbss.ear.project.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.cvut.kbss.ear.project.rest.dto.LoginDTO;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,8 +37,15 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(
         HttpServletRequest request, HttpServletResponse response
     ) throws AuthenticationException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        String username, password;
+        try {
+            LoginDTO loginCredentials = new ObjectMapper().readValue(request.getInputStream(),
+                LoginDTO.class);
+            username = loginCredentials.getUsername();
+            password = loginCredentials.getPassword();
+        } catch (IOException e) {
+            throw new AuthenticationServiceException(e.getMessage(), e);
+        }
 
         // Create new Spring Authentication token and log in user
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

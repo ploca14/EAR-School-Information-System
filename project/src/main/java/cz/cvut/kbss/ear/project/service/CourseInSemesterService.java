@@ -204,4 +204,10 @@ public class CourseInSemesterService {
 
         return courseInSemesterDao.findUsersCourses(semester, user);
     }
+
+    public List<CourseInSemester> getAllCoursesInSemester(Semester semester){
+        Objects.requireNonNull(semester);
+
+        return courseInSemesterDao.findCoursesCoursesInSemester(semester);
+    }
 }

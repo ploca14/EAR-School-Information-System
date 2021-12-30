@@ -1,6 +1,7 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
 import cz.cvut.kbss.ear.project.exception.NotFoundException;
+import cz.cvut.kbss.ear.project.model.Course;
 import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.CourseParticipant;
 import cz.cvut.kbss.ear.project.model.Parallel;
@@ -61,10 +62,11 @@ public class MyController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping(value = "/courses")
-    public List<CourseInSemesterDTO> getCourses() {
+    @GetMapping(value = "/courses/{semesterCode}")
+    public List<CourseInSemesterDTO> getCourses(@PathVariable(required = false) String semesterCode) {
         User user = SecurityUtils.getLoggedInUser();
-        return courseInSemesterService.getAllUsersCoursesInSemester(semesterService.getCurrentSemester(), user)
+        Semester semester = semesterCode == null ? semesterService.getCurrentSemester() : semesterService.findByCode(semesterCode);
+        return courseInSemesterService.getAllUsersCoursesInSemester(semester, user)
             .stream()
             .map(CourseInSemesterDTO::new)
             .collect(Collectors.toList());

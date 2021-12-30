@@ -16,9 +16,9 @@ public class SecurityConditions {
             case ARCHIVED:
                 return false;
             case PREPARATION:
-                return SecurityUtils.hasRole("ROLE_ADMIN") || SecurityUtils.hasRole("ROLE_STUDY_DEPARTMENT_EMPLOYEE");
-            case CURRENT:
                 return true;
+            case CURRENT:
+                return SecurityUtils.hasRole("ROLE_ADMIN") || SecurityUtils.hasRole("ROLE_STUDY_DEPARTMENT_EMPLOYEE");
         }
 
         return false;

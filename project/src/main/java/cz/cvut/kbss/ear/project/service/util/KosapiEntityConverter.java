@@ -30,7 +30,7 @@ public class KosapiEntityConverter {
         user.setLastName(kosParticipant.getLastName());
         user.setUsername(kosParticipant.getUsername());
         user.setRole(Role.REGULAR_USER);
-        user.setPassword("TODO");// TODO vygenerovat nejake encryptovane random heslo
+        user.setPassword("heslo123");
         return user;
     }
 
@@ -46,7 +46,11 @@ public class KosapiEntityConverter {
 
     private static Parallel addKosTimetableSlotToParallel(Parallel parallel, KosTimetableSlot kosTimetableSlot){
         Classroom room = new Classroom();
-        room.setName(kosTimetableSlot.getRoom().toString());
+        if (kosTimetableSlot.getRoom() != null) {
+            room.setName(kosTimetableSlot.getRoom().toString());
+        } else {
+            room.setName("");
+        }
 
         parallel.setClassroom(room);
         parallel.setDayOfWeek(DayOfWeek.of(Integer.parseInt(kosTimetableSlot.getDay())));

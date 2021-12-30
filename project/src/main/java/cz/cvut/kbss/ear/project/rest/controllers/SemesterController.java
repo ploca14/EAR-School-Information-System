@@ -1,9 +1,13 @@
 package cz.cvut.kbss.ear.project.rest.controllers;
 
 import cz.cvut.kbss.ear.project.exception.NotFoundException;
+import cz.cvut.kbss.ear.project.model.Course;
+import cz.cvut.kbss.ear.project.model.CourseInSemester;
 import cz.cvut.kbss.ear.project.model.Semester;
 import cz.cvut.kbss.ear.project.rest.util.RestUtils;
+import cz.cvut.kbss.ear.project.service.CourseInSemesterService;
 import cz.cvut.kbss.ear.project.service.SemesterService;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +35,14 @@ public class SemesterController {
 
     private final SemesterService semesterService;
 
-    public SemesterController(SemesterService semesterService) {
+    private final CourseInSemesterService courseInSemesterService;
+
+    public SemesterController(
+        SemesterService semesterService,
+        CourseInSemesterService courseInSemesterService
+    ) {
         this.semesterService = semesterService;
+        this.courseInSemesterService = courseInSemesterService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,5 +77,16 @@ public class SemesterController {
         LOG.debug("Made semester with code: {}, current.", semesterCode);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri(""); // Todo wrong uri
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{semesterCode}/courses", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Course> getSemesterCourses(@PathVariable String semesterCode){
+        final Semester semester = semesterService.findByCode(semesterCode);
+        if (semester == null){
+            throw NotFoundException.create("Semester", semesterCode);
+        }
+        return courseInSemesterService.getAllCoursesInSemester(semester).stream()
+            .map(CourseInSemester::getCourse)
+            .collect(Collectors.toList());
     }
 }

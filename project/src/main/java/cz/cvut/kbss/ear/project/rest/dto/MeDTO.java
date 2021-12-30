@@ -2,6 +2,8 @@ package cz.cvut.kbss.ear.project.rest.dto;
 
 import cz.cvut.kbss.ear.project.model.User;
 import cz.cvut.kbss.ear.project.model.enums.Role;
+import java.util.Collections;
+import java.util.List;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -10,8 +12,7 @@ public class MeDTO {
     String firstName;
     String lastName;
     String email;
-    @Enumerated(EnumType.STRING)
-    Role role;
+    List<String> scope;
 
     public MeDTO() {
 
@@ -22,7 +23,7 @@ public class MeDTO {
         firstName = user.getFirstName();
         lastName = user.getLastName();
         email = user.getEmail();
-        role = user.getRole();
+        scope = Collections.singletonList(user.getRole().name());
     }
 
     public String getUsername() {
@@ -41,7 +42,7 @@ public class MeDTO {
         return email;
     }
 
-    public Role getRole() {
-        return role;
+    public List<String> getScope() {
+        return scope;
     }
 }

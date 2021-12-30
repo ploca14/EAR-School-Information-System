@@ -63,7 +63,6 @@ import static cz.cvut.kbss.ear.project.rest.util.DTOConverter.dtoToParallel;
  **/
 @RestController
 @RequestMapping("/api/courses")
-// TODO security
 public class CourseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CourseController.class);

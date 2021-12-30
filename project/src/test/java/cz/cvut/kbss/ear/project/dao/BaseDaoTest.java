@@ -10,6 +10,7 @@ import cz.cvut.kbss.ear.project.model.Classroom;
 import cz.cvut.kbss.ear.project.rest.controllers.CourseController;
 import cz.cvut.kbss.ear.project.rest.controllers.MyController;
 import cz.cvut.kbss.ear.project.rest.controllers.ParallelController;
+import cz.cvut.kbss.ear.project.rest.controllers.SemesterController;
 import cz.cvut.kbss.ear.project.rest.controllers.UserController;
 import cz.cvut.kbss.ear.project.service.CourseInSemesterService;
 import cz.cvut.kbss.ear.project.service.CourseSynchronisationService;
@@ -27,7 +28,8 @@ import org.springframework.context.annotation.FilterType;
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
                 KosApiConfig.class, TokenManager.class, KosapiService.class, CourseController.class,
                 UserController.class, ParallelService.class, CourseInSemesterService.class,
-                CourseSynchronisationService.class, MyController.class, ParallelController.class
+                CourseSynchronisationService.class, MyController.class, ParallelController.class,
+                SemesterController.class
         }))
 public class BaseDaoTest {
 
