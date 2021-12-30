@@ -55,18 +55,18 @@ public class CourseInSemesterService {
         this.kosapiService = kosapiService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CourseInSemester> findAll() {
         return courseInSemesterDao.findAll();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CourseInSemester find(Integer id) {
         return courseInSemesterDao.find(id);
     }
 
-    @Transactional(readOnly = true)
-    public CourseInSemester findByCode(String courseCode, String semesterCode) {
+    @Transactional
+    public CourseInSemester findByCode(String courseCode, String semesterCode){
         CourseInSemester result = courseInSemesterDao.findCourseInSemester(courseDao.findByCode(courseCode), semesterDao.findByCode(semesterCode));
         if (result == null) {
             throw NotFoundException.create("CourseInSemester", "Coursecode:" + courseCode + ", SemesterCode: " + semesterCode);
@@ -98,6 +98,7 @@ public class CourseInSemesterService {
     }
 
     @Transactional
+    @PreAuthorize("@securityConditions.checkIsAllowedToEdit(#course.semester)")
     public CourseStudent enrolAsStudentInCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
@@ -124,6 +125,7 @@ public class CourseInSemesterService {
     }
 
     @Transactional
+    @PreAuthorize("@securityConditions.checkIsAllowedToEdit(#course.semester)")
     public void unenrolFromCourse(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
@@ -136,7 +138,7 @@ public class CourseInSemesterService {
         courseParticipantDao.remove(participant);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public boolean isUserEnroled(User user, CourseInSemester course) {
         Objects.requireNonNull(user);
         Objects.requireNonNull(course);
@@ -145,7 +147,7 @@ public class CourseInSemesterService {
         return participant != null;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public boolean courseInstanceExists(Course course, Semester semester) {
         Objects.requireNonNull(course);
         Objects.requireNonNull(semester);
@@ -153,35 +155,35 @@ public class CourseInSemesterService {
         return courseInSemesterDao.findCourseInSemester(course, semester) != null;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Collection<Parallel> getParallels(CourseInSemester courseInSemester) {
         Objects.requireNonNull(courseInSemester);
 
         return courseInSemesterDao.find(courseInSemester.getId()).getParallels();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CourseStudent> getStudents(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
         return courseInSemesterDao.findStudents(courseInSemester);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CourseTeacher> getTeachers(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
         return courseInSemesterDao.findTeachers(courseInSemester);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CourseParticipant> getAllParticipants(CourseInSemester courseInSemester){
         Objects.requireNonNull(courseInSemester);
 
         return courseInSemesterDao.findAllParticipants(courseInSemester);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CourseParticipant getCourseParticipant(CourseInSemester courseInSemester, User user){
         Objects.requireNonNull(courseInSemester);
         Objects.requireNonNull(user);
@@ -195,7 +197,6 @@ public class CourseInSemesterService {
         return courseParticipant;
     }
 
-    @Transactional(readOnly = true)
     public List<CourseInSemester> getAllUsersCoursesInSemester(Semester semester, User user){
         Objects.requireNonNull(semester);
         Objects.requireNonNull(user);

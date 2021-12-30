@@ -41,9 +41,12 @@ public class KosapiService {
     @Autowired
     private RestTemplate restTemplate;
 
+    private String token;
+
     public KosapiService(TokenManager tokenManager, RestTemplate restTemplate) {
         this.tokenManager = tokenManager;
         this.restTemplate = restTemplate;
+        this.token = tokenManager.getAccessToken();
         restTemplate.getMessageConverters()
                 .add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
     }
@@ -211,7 +214,7 @@ public class KosapiService {
 
     private HttpEntity<Void> getHttpRequestEntity(){
         HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, "Bearer " + tokenManager.getAccessToken());
+        headers.add(AUTHORIZATION, "Bearer " + token);
         return new HttpEntity<>(headers);
     }
 

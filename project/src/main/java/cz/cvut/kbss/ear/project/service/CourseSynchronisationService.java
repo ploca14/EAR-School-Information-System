@@ -53,6 +53,7 @@ public class CourseSynchronisationService {
     @Transactional
     public void synchroniseWithKos(CourseInSemester courseInSemester){
         this.courseInSemester = courseInSemester;
+        // TODO mozna pridat flag do modelu, jestli byl kurz importovan z KOSu
         loadDataFromKosapi();
         synchroniseCourseEnrolments();
         synchroniseParallelEnrolments();
@@ -66,7 +67,7 @@ public class CourseSynchronisationService {
         //List<User> allParticipantsFromKos = students;
         //allParticipantsFromKos.addAll(teachers);
 
-        // unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
+        //TODO unenrolOldUsersFromCourse(allParticipantsFromKos, courseInSemesterService.getAllParticipants(courseInSemester));
     }
 
     private void enrolNewUsersInCourse(List<User> students, List<User> teachers, CourseInSemester courseInSemester){

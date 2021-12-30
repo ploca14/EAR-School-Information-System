@@ -20,17 +20,17 @@ public class SemesterService {
         this.dao = semesterDao;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<Semester> findAll() {
         return dao.findAll();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Semester find(Integer id) {
         return dao.find(id);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Semester findByCode(String code){ return dao.findByCode(code); }
 
     @Transactional
