@@ -1,3 +1,4 @@
+# Zpráva ze semestrálky je na [wiki](https://gitlab.fel.cvut.cz/belkapre/ear-semestralka/-/wikis/home)
 ### Zadání
 
 
