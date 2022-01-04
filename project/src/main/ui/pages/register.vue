@@ -112,7 +112,7 @@ export default {
         required: [v => !!v || 'This field is required'],
         password: [
           v => !!v || 'Password is required',
-          v => v.length >= 6 || 'Name must be at least 6 characters',
+          v => (v && v.length >= 6) || 'Password must be at least 6 characters',
         ],
       },
       showPassword: false,
