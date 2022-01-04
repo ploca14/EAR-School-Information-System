@@ -17,7 +17,8 @@ import javax.persistence.*;
 public abstract class CourseParticipant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_participant_generator")
+    @SequenceGenerator(name = "course_participant_generator",sequenceName = "course_participant_id_seq")
     private Integer id;
 
     @ManyToOne
